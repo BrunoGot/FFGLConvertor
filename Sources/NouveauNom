@@ -1,0 +1,134 @@
+#pragma once
+
+	void StartCounter();
+	double GetCounter();
+#include <string>
+
+	void StartCounter();
+	double GetCounter();
+#include <ffgl/FFGLPluginSDK.h>
+
+	void StartCounter();
+	double GetCounter();
+#include <ffglex/FFGLShader.h>
+
+	void StartCounter();
+	double GetCounter();
+#include <ffglex/FFGLScreenQuad.h>
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+class FXTemplate : public CFreeFrameGLPlugin
+
+	void StartCounter();
+	double GetCounter();
+{
+
+	void StartCounter();
+	double GetCounter();
+public:
+
+	void StartCounter();
+	double GetCounter();
+FXTemplate();
+
+	void StartCounter();
+	double GetCounter();
+        ~FXTemplate();
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+        //CFreeFrameGLPlugin
+
+	void StartCounter();
+	double GetCounter();
+        FFResult InitGL( const FFGLViewportStruct* vp ) override;
+
+	void StartCounter();
+	double GetCounter();
+        FFResult ProcessOpenGL( ProcessOpenGLStruct* pGL ) override;
+
+	void StartCounter();
+	double GetCounter();
+        FFResult DeInitGL() override;
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+        FFResult SetFloatParameter( unsigned int dwIndex, float value ) override;
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+        float GetFloatParameter( unsigned int index ) override;
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+private:
+
+	void StartCounter();
+	double GetCounter();
+/*###CustomParameters###*/
+
+	float m_param1;
+	float m_param2;
+	float m_param3;
+	float m_param4;
+	double elapsedTime;
+	double lastTime;
+	double PCFreq;
+	__int64 CounterStart;
+	std::chrono::steady_clock::time_point start;
+	std::chrono::steady_clock::time_point end;
+	float m_Time1;
+	GLint ParamLocation1;
+
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+//	float param1;
+
+	void StartCounter();
+	double GetCounter();
+
+
+	void StartCounter();
+	double GetCounter();
+        ffglex::FFGLShader m_shader;   //!< Utility to help us compile and link some shaders into a program.
+
+	void StartCounter();
+	double GetCounter();
+        ffglex::FFGLScreenQuad quad; //!< Utility to help us render a full screen quad.
+
+	void StartCounter();
+	double GetCounter();
+        GLint m_maxUVLocation;
+
+	void StartCounter();
+	double GetCounter();
+};
+
+	void StartCounter();
+	double GetCounter();

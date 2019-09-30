@@ -216,7 +216,8 @@ class FFGL20Writer(FFGLWriter):
                     
                 newCode+="\t//link the uniforms with the parameters here \n"
                 index = 0
-                for i in dicoParam:
+                paramCount = 0 #used to create the param names : m_param1,m_param2,m_param3
+                for i in dicoParam: #get the key of the dico param in the i variable
                     for j in range(0,dicoParam[i]):
                         
                         unfiformName = listParamLocation[index] #name of the variable
@@ -224,9 +225,10 @@ class FFGL20Writer(FFGLWriter):
                         newCode+="\tglUniform"+str(i)+"f("+unfiformName+", "
                         index+=1
                         for k in range(0,i):
-                            newCode += "m_param"+str(k+1) #start at "m_param1"
+                            paramCount+=1
+                            newCode += "m_param"+str(paramCount) #start at "m_param1"
                             if k==i-1: #if it's the last iteration, end the line
-                                newCode+=");"
+                                newCode+=");\n"
                             else:
                                 newCode+=", "
                 newCode+= "\n" #end of the section

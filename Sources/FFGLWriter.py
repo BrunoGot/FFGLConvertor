@@ -213,7 +213,7 @@ class FFGL20Writer(FFGLWriter):
                 if self.m_bImplementTime==True:
                     #implement time
                     newCode+=self.UpdateTime() #add the code to create time vraiable
-                    
+                    #implement here connection with shader by ddefault. Add option to let the user choose if the speed must by linked to the shader or not  
                 newCode+="\t//link the uniforms with the parameters here \n"
                 index = 0
                 paramCount = 0 #used to create the param names : m_param1,m_param2,m_param3

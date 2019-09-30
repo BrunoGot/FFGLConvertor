@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 
 class FFGLInformation:
@@ -50,7 +51,7 @@ class FFGLReader:
    #obselete m_sPluginInfo = [] #var containing the plugin info section
     m_dicoParam = {} #var containing parameters in a dictionary struct
     m_bMultiComment = False #boolean helping to know if the current line is in a comment or not    
-    # rajouter m_sVarParam contenant le nom de a variable relié a ce parametre
+    # rajouter m_sVarParam contenant le nom de a variable reliÃ© a ce parametre
     def Convert(self, _sourceFile):
         self.m_sSourceFile = open(_sourceFile, "r")
         print("ready to parse %s" % self.m_sSourceFile)        
@@ -168,7 +169,7 @@ class FFGLReader:
             
 
     #Enlever tout les commentaire
-    # enlever tout les \n (obligé ?)
+    # enlever tout les \n (obligÃ© ?)
     # stocker le nouveau fichier dans une variable
     # dans differentes pass faire : 
     #  - parser infoParam 
@@ -318,7 +319,7 @@ class FFGLReader:
             #get the plugins info
             line=raw_line.replace("\t", "")
             #print(line)            
-            if "//" not in line[:2]: #si la ligne n'est pas commantée (looks for '//' char at the begining of the string 
+            if "//" not in line[:2]: #si la ligne n'est pas commantÃ©e (looks for '//' char at the begining of the string 
                 #ignore commanted line with "/*" 
                 if "/*" in line : 
                     bCommantedLine = True

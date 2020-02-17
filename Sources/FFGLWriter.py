@@ -5,7 +5,8 @@ class FFGLWriter():
     m_DicoParam= {} #dictionary containing parameters class as dico<int, FFGLParameter>
     m_PluginInfo = FFGLInformation("","","","","","","","","","")
     m_bImplementTime = False
-    m_dicoVar = {} #dictionary<string, string> (paramName,variable type) dictionary containing the new variables created and have to be returned at the end of this function
+    m_dicoVar = {} #dictionary<string, string> (paramName,variable type) dictionary containing the new variables created and have to written in the header file
+    m_dicoSpeedShader = {} #dictionary to implement speed into the shader. It contain all variables l
     m_tabFunction = [] #array[string] containing special functions to write in the header part
     def __init__(self, _dicoParam, _pluginInfo):
         self.m_DicoParam = _dicoParam
@@ -105,14 +106,28 @@ class FFGL20Writer(FFGLWriter):
        # f.close()
         return newCode
         
-                        
+    #this function define how many glUniform have to be created and what kind of glUniform (glUniform2f, glUniform4f...) it return the optiimal numer of glUniform to create 
+    def CreateGlParam(self, _paramNumber):
+        dicoGlParam = {} #create a dictionary containing the type of glUniform to create (key) and the number to create (value)
+        rest = _paramNumber
+        index = 4 #4 is the max number supported by gl function to send to a shader : glUniform4f 
+        while rest >0:
+            q = int(rest/index)
+            if q>0 :
+                rest = rest%index
+                dicoGlParam [index] = q #if q = 2 and index = 4, then we will have to create 2 GLuniform4
+            index-=1
+        return dicoGlParam 
+    
     #write the .cpp file and return all the variables to creates
     def WriteCPPFile(self):
         print("test WriteFFGL")
         templateFFGL = open(self.m_sTemplateFileName,"r")
         code = templateFFGL.readlines()
-        dicoParam = {} #dico containing number of paramLocation to create and gluniform type (uniform4,3,2...)
+        dicoGluniform = {} #dico containing number of gluniform to create and gluniform type (uniform4,3,2...)
         listParamLocation = [] #list of paramterLocation
+        listParamSpeedLocation = [] #list of paramterLocation linked to the time value
+        dicoParamSpeedName = {} #list of parameter name linked to the time {paramVarName, time variable}
         newCode = ""
         print("###NewCode###")
         for line in code:
@@ -143,8 +158,14 @@ class FFGL20Writer(FFGLWriter):
 #                print(self.m_DicoParam)
                 newCode+="\t//init the params here \n"
                 index = 0
+                indexSpeed = 0
                 for i in self.m_DicoParam:
                     newParam = ""
+                    if self.m_DicoParam[i].m_sTypeParam == "Speed":
+                        indexSpeed +=1
+                        timeVarName = "m_time"+str(indexSpeed)
+                        self.m_dicoVar[timeVarName] = "float" #save in this buffer to declare it in the header when needed                        
+                        dicoParamSpeedName[self.m_DicoParam[i].m_sVarName] = timeVarName #save all the param who will be linked to the time in this array
                     if self.m_DicoParam[i].m_bIsShader == False:
                         newParam = self.m_DicoParam[i].m_sVarName #.replace('"','')
                     else:
@@ -166,6 +187,8 @@ class FFGL20Writer(FFGLWriter):
                 if self.m_bImplementTime == True:
                     newCode+="\n\t/*###Implement time###*/\n"
                     #init the time1....2...3 variable also here
+                    for i in dicoParamSpeedName:
+                        newCode+="\t"+dicoParamSpeedName[i]+" = 0.0;\n" #init the time counter at 0
                     newCode+="\telapsedTime = 0.0;\n"
                     newCode+="\tlastTime = 0.0;\n"
                     newCode+="\t#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))\n"
@@ -183,27 +206,32 @@ class FFGL20Writer(FFGLWriter):
                    # self.m_dicoVar["end"] = "std::chrono::steady_clock::time_point"
             if "/*###InitUniforms###*/" in line:
                 paramNumber = 0 #count number of parameters linked with shaders
+                paramSpeedNumber = len(dicoParamSpeedName) #count the number of parameter linked to the time
+                #count the number of parameter who should be linked to the shader and give this number to the CreateGLParamFunction
                 for i in self.m_DicoParam:
                     if self.m_DicoParam[i].m_bIsShader == True:
                         paramNumber+=1
-                rest = paramNumber
-                #Todo : continue this section : define the number of gluniform4f to create
-                index = 4 #4 is the max number supported by gl function to send to a shader : glUniform4f 
-                while rest >0:
-                    q = int(rest/index)
-                    if q>0 :
-                        rest = rest%index
-                        dicoParam[index] = q #if q = 2 and index = 4, then we will have to create 2 GLuniform4
-                    index-=1
+                dicoGluniform = self.CreateGlParam(paramNumber)
+                dicoGlSpeedUniform = self.CreateGlParam(paramSpeedNumber)
                 
                 newCode+="\t//assign the uniforms here \n"
                 nbParam = 0
-                for i in dicoParam:
-                    for j in range(0,dicoParam[i]):
+                for i in dicoGluniform: #for each element of the dico
+                    for j in range(0,dicoGluniform[i]): #dicoGluniform[i] gives the number of GLUniform to create so (GLUniform number) X (Number of dico element) = Number of ParamLocation
                         nbParam+=1
                         paramName = "ParamLocation"+str(nbParam)
                         listParamLocation.append(paramName)
                         newCode+="\t"+paramName+" = m_shader.FindUniform(\"m_param"+str(nbParam)+"\");\n"
+                
+                #create paramLocation for speed
+                nbParam = 0 #reinit the param counter
+                for i in dicoGlSpeedUniform:
+                    for j in range(0,dicoGlSpeedUniform[i]):
+                        nbParam+=1
+                        paramName = "ParamSpeedLocation"+str(nbParam)
+                        listParamSpeedLocation.append(paramName)
+                        newCode+="\t"+paramName+" = m_shader.FindUniform(\"m_time"+str(nbParam)+"\");\n"
+                
                 #if the time have to be implemented
                 if self.m_bImplementTime==True:
                     newCode+="\n\t/*###init Time###*/\n"
@@ -212,13 +240,13 @@ class FFGL20Writer(FFGLWriter):
             if "/*###LinkShaderParams###*/" in line:
                 if self.m_bImplementTime==True:
                     #implement time
-                    newCode+=self.UpdateTime() #add the code to create time vraiable
+                    newCode+=self.UpdateTime(dicoParamSpeedName) #add the code to create time vraiable
                     #implement here connection with shader by ddefault. Add option to let the user choose if the speed must by linked to the shader or not  
                 newCode+="\t//link the uniforms with the parameters here \n"
                 index = 0
                 paramCount = 0 #used to create the param names : m_param1,m_param2,m_param3
-                for i in dicoParam: #get the key of the dico param in the i variable
-                    for j in range(0,dicoParam[i]):
+                for i in dicoGluniform: #get the key of the dico param in the i variable
+                    for j in range(0,dicoGluniform[i]):
                         
                         unfiformName = listParamLocation[index] #name of the variable
                         self.m_dicoVar[unfiformName] = "GLint"
@@ -232,10 +260,31 @@ class FFGL20Writer(FFGLWriter):
                             else:
                                 newCode+=", "
                 newCode+= "\n" #end of the section
+                
+                index=0 #reinit the index
+                paramCount =0 #reinit the index
+                for i in dicoGlSpeedUniform: #get the key of the dico param in the i variable
+                    for j in range(0,dicoGlSpeedUniform[i]):
+                        
+                        unfiformName = listParamSpeedLocation[index] #name of the variable
+                        self.m_dicoVar[unfiformName] = "GLint" #used for the header part
+                        newCode+="\tglUniform"+str(i)+"f("+unfiformName+", "
+                        index+=1
+                        for k in range(0,i):
+                            paramCount+=1
+                            newCode += "m_time"+str(paramCount) #start at "m_param1"
+                            if k==i-1: #if it's the last iteration, end the line
+                                newCode+=");\n"
+                            else:
+                                newCode+=", "
+                newCode+= "\n" #end of the section
+                
             if "/*###DeInitParams###*/\n" in line:
                 newCode+="\t//Deinitialize the parameters here \n"
                 for ParamLoc in listParamLocation:
-                    newCode += ParamLoc + " = -1;\n"
+                    newCode += "\t"+ParamLoc + " = -1;\n"
+                for ParamSpeedLoc in listParamSpeedLocation:
+                    newCode += "\t"+ParamSpeedLoc + " = -1;\n"
             #TODO : renomer les varName des shader de l'objet self.m_DicoParam
             if "/*###SetParamValue###*/\n" in line:
                 newCode+="\t//Set the parameters value here \n"
@@ -270,20 +319,17 @@ class FFGL20Writer(FFGLWriter):
         # print ffgltemplate into the cpp file
         # let see what's happen
         
-    def UpdateTime(self):
+    def UpdateTime(self, _dicoTime):
         code = "\n\t/*##Update Time##*/\n"
         code += "\t/*the time is just imlemented to gives you possibility to use it. recode manually the way your are using the time var*/\n"
         code+= "\t// Calculate elapsed time\n"
         code+= "\tlastTime = elapsedTime;\n"
         code+= "\telapsedTime = GetCounter() / 1000.0; // In seconds - higher resolution than timeGetTime()\n"
         index = 0
-        for p in self.m_DicoParam:
-            param = self.m_DicoParam[p] 
-            if param.m_sTypeParam == "Speed":
-                index+=1
-                paramTime = "m_Time"+str(index)
-                code+= "\t"+paramTime +"= "+paramTime+" + (float)(elapsedTime - lastTime)*("+param.m_sVarName+"*2.0-1.0); // time goes from -1 to 1 by default \n"
-                self.m_dicoVar[paramTime] = "float"
+        #dicoParamSpeedShader = 
+        for paramName in _dicoTime:
+                paramTime = _dicoTime[paramName]
+                code+= "\t"+paramTime +"= "+paramTime+" + (float)(elapsedTime - lastTime)*("+paramName+"*2.0-1.0); // time goes from -1 to 1 by default \n"
         return code+"\n"
     
     def ImplementTimeFunction(self):
@@ -307,7 +353,7 @@ class FFGL20Writer(FFGLWriter):
         code += "}\n"
 
         self.m_tabFunction.append("double GetCounter()")
-        code += "\n/**From Lynn Jarvis code : https://github.com/leadedge/ShaderMaker/blob/master/ShaderMaker.cpp/"
+        code += "\n/*From Lynn Jarvis code : https://github.com/leadedge/ShaderMaker/blob/master/ShaderMaker.cpp/ */" 
         code += "\ndouble "+self.m_PluginInfo.m_sClassName+"::GetCounter()\n"
         code += "{\n"
         code += "#if (defined(WIN32) || defined(_WIN32) || defined(__WIN32__))\n"

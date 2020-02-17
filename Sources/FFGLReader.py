@@ -353,6 +353,7 @@ class FFGLReader:
         
    # def RecordParamInfo(self):
    #test : C:\Users\Natspir\Documents\Code\C++\VFXArtShopEffects_4\source\plugins\Circlize\NSCirclize.cpp
+   #test : C:\Users\Natspir\Documents\Code\C++\VFXArtShopEffects_4\source\plugins\Geometric\NSGeometric.cpp
     def RecordParam(self, paramLine):
        # print("paramLine = "+paramLine)
         #remove "SetParamInfo" word from the line

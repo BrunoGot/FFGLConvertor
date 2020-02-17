@@ -159,22 +159,6 @@ FFResult FXTemplate::SetFloatParameter( unsigned int dwIndex, float value )
 {
         switch( dwIndex )
         {
-        /*case FFPARAM_Param1:
-                param1 = value;
-                break;
-        case FFPARAM_Param2:
-                param2 = value;
-                break;
-        case FFPARAM_Param3:
-                param3 = value;
-                break;
-        case FFPARAM_Param4:
-                param4 = value;
-                break;
-        case FFPARAM_Param5:
-                param5 = value;
-                break;*/
-
         /*###SetParamValue###*/
         /*###EndSetParamValue###*/
 
@@ -189,16 +173,6 @@ float FXTemplate::GetFloatParameter( unsigned int dwIndex )
 {
         switch( dwIndex )
         {
-        /*case FFPARAM_Param1:
-                return param1;
-        case FFPARAM_Param2:
-                return param2;
-        case FFPARAM_Param3:
-                return param3;
-        case FFPARAM_Param4:
-                return param4;
-        case FFPARAM_Param5:
-                return param5;*/
         /*###GetParamValue###*/
         /*###EndGetParamValue###*/
         default:

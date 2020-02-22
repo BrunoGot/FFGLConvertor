@@ -2,7 +2,7 @@ from FFGLReader import FFGLInformation #test this import
 #TODO : write the code ini a new file
 
 class FFGLWriter():
-    m_DicoParam= {} #dictionary containing parameters class as dico<int, FFGLParameter>
+    m_DicoParam= {} #dictionary containing parameters class as dico<int, FFGLParameter> (string) paramName, (string) param type : FF_TYPE_STANDARD/speed , (string) param default value, (bool) is connected to shader, (string) shader var name
     m_PluginInfo = FFGLInformation("","","","","","","","","","")
     m_bImplementTime = False
     m_dicoVar = {} #dictionary<string, string> (paramName,variable type) dictionary containing the new variables created and have to written in the header file

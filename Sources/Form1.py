@@ -62,6 +62,9 @@ class Form1():
             self.m_sParams.append(self.m_sConvertMode)
             self.m_sParams.append(self.m_sSrcPath)            
            # m_Manager.SetCommand(self.m_sMode, self.m_sConvertMode, m_sSrcPath)
+        elif(self.m_sMode == "2"):
+            option2 = input("What type of FFGL do you want to create ? \n 1 = FFGL 1.5 \n 2 = FFGL 2.0 \n choice = ")
+            self.m_sParams.append(option2)
         else:
             print("code the create plugin module here")
     

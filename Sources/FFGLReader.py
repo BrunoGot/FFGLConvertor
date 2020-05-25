@@ -1,52 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
-
-class FFGLInformation:
-    m_sClassName = "" #name of the cpp class file
-    m_sID = "" #Id of the plugin
-    m_sPluginName = "" #Name of the plugin
-    m_sAPIMajVersion = "" #API major version
-    m_sAPIMinVersion = "" #API minor version 
-    m_sPluginMaj = "" #Plugin major version
-    m_sPluginMin = "" #Plugin minor version
-    m_sEffectType = "" #plugin effect type
-    m_sDescription = "" #plugin description
-    m_sAbout = "" #plugin About
-    def __init__(self, _className, _id, _pluginName, _APIMaj, _APIMin, _pluginMaj, _pluginMin, _effectType, _description, _about):
-        self.m_sClassName = _className
-        self.m_sID = _id
-        self.m_sPluginName = _pluginName
-        self.m_sAPIMajVersion = _APIMaj
-        self.m_sAPIMinVersion = _APIMin
-        self.m_sPluginMaj = _pluginMaj
-        self.m_sPluginMin = _pluginMin
-        self.m_sEffectType = _effectType
-        self.m_sDescription = _description
-        self.m_sAbout = _about
-        
-class FFGLParameter:
-    m_sFFParamName = ""
-    m_sTypeParam = "" #standrad, speed, boolean
-    m_bIsShader = True #link this parameter to a shader
-    m_sParamName = "" #name of the parameter
-    m_sParamValue = []#default value of the parameter
-    m_sVarName = "" #the variable name assigned to the parameter
-    def __init__(self, m_sFFParamName, _sTypeParam, _bIsShader, _sParamName, _sParamValue):
-        self.m_sTypeParam = _sTypeParam.replace(" ","")
-        self.m_bIsShader = _bIsShader
-        self.m_sParamName = _sParamName
-        self.m_sParamValue = _sParamValue
-        #parse name to set paramType as "Speed" type if the param is linked with time
-        paramName = _sParamName.lower()
-        if "speed" in paramName:
-            print("speed = -"+self.m_sTypeParam +"-")
-            if self.m_sTypeParam == "FF_TYPE_STANDARD": 
-                print("speed2 = "+self.m_sTypeParam )                
-                self.m_sTypeParam  = "Speed"        
-        
+import FFGLParameter
+import FFGLInformation
         
 class FFGLReader:
-    m_pluginInfo = FFGLInformation("","","","","","","","","","") #structure containing the plugin info section
+    m_pluginInfo = FFGLInformation.FFGLInformation("","","","","","","","","","") #structure containing the plugin info section
     m_sSourceFile = "" #the file to read
    #obselete m_sPluginInfo = [] #var containing the plugin info section
     m_dicoParam = {} #var containing parameters in a dictionary struct
@@ -207,7 +165,7 @@ class FFGLReader:
                     #if lastLine != "":
                      #   self.m_sPluginInfo.append(lastLine)
                 elif line != "":
-                   # print("Add info : "+line)
+                    # print("Add info : "+line)
                     #self.m_sPluginInfo.append(line )
                     infoLine = line 
             elif "CFFGLPluginInfo" in line :
@@ -228,7 +186,7 @@ class FFGLReader:
                 infoLine = self.ClearInutilChar(infoLine)                
                 tabInfo.append(infoLine)
                 paramIndex +=1
-        self.m_pluginInfo = FFGLInformation(tabInfo[0],tabInfo[1], tabInfo[2], tabInfo[3],tabInfo[4],tabInfo[5],tabInfo[6],tabInfo[7],tabInfo[8],tabInfo[9])
+        self.m_pluginInfo = FFGLInformation.FFGLInformation(tabInfo[0],tabInfo[1], tabInfo[2], tabInfo[3],tabInfo[4],tabInfo[5],tabInfo[6],tabInfo[7],tabInfo[8],tabInfo[9])
         
     #Clear symbols and spaces
     def ClearInutilChar(self, _line):
@@ -366,5 +324,5 @@ class FFGLReader:
         paramLine = self.ClearInutilChar(paramLine)
         print("paramLine after remove = "+paramLine)        
         paramLine = paramLine.split(',')
-        paramStruct = FFGLParameter(paramLine[0],paramLine[2],False,paramLine[1],paramLine[3]) #continue here
+        paramStruct = FFGLParameter.FFGLParameter(paramLine[0],paramLine[2],False,paramLine[1],paramLine[3]) #continue here
         self.m_dicoParam[paramLine[0]] = paramStruct

@@ -3,7 +3,7 @@ from FFGLReader import FFGLInformation #test this import
 
 class FFGLWriter():
     m_DicoParam= {} #dictionary containing parameters class as dico<int, FFGLParameter> (string) paramName, (string) param type : FF_TYPE_STANDARD/speed , (string) param default value, (bool) is connected to shader, (string) shader var name
-    m_PluginInfo = FFGLInformation("","","","","","","","","","")
+    m_PluginInfo = FFGLInformation.FFGLInformation("","","","","","","","","","")
     m_bImplementTime = False
     m_dicoVar = {} #dictionary<string, string> (paramName,variable type) dictionary containing the new variables created and have to written in the header file
     m_dicoSpeedShader = {} #dictionary to implement speed into the shader. It contain all variables l
@@ -138,7 +138,7 @@ class FFGL20Writer(FFGLWriter):
             if "/*###DefineSection###*/" in line:
                 index = 0
                 for i in self.m_DicoParam:
-                    newCode+="#define "+i+" ("+str(index)+")\n"
+                    newCode+="#define "+str(i)+" ("+str(index)+")\n"
                     index +=1
             #todo : make a structure for PluginInfo with it's name, id, version etc.... it will be easier and cleaner to conver it.
             
@@ -183,7 +183,8 @@ class FFGL20Writer(FFGLWriter):
                     if paramType == "Speed": #some parameter type has been marked as "speed" because they need a different implementation of classic FF_Type_Standard
                         paramType = "FF_TYPE_STANDARD" #However, in the SetParamInfo section we need to write the param as a FF_Type_Standard
                         self.m_bImplementTime =True
-                    newCode += "\tSetParamInfof("+i+", "+param.m_sParamName+", "+paramType+");\n"
+                    print("\tSetParamInfof("+str(i)+", "+param.m_sParamName+", "+paramType+");\n")
+                    newCode += "\tSetParamInfof("+str(i)+", "+param.m_sParamName+", "+paramType+");\n"
                 if self.m_bImplementTime == True:
                     newCode+="\n\t/*###Implement time###*/\n"
                     #init the time1....2...3 variable also here
@@ -290,7 +291,7 @@ class FFGL20Writer(FFGLWriter):
                 newCode+="\t//Set the parameters value here \n"
                 nbParam=1
                 for i in self.m_DicoParam:
-                    newCode+="\tcase "+i+":\n"
+                    newCode+="\tcase "+str(i)+":\n"
                     if self.m_DicoParam[i].m_bIsShader==True:
                         newCode+="\t\tm_param"+str(nbParam)+" = value;\n"
                         nbParam+=1
@@ -302,7 +303,7 @@ class FFGL20Writer(FFGLWriter):
                 newCode+="\t//Get the parameters value here \n"
                 nbParam=1
                 for i in self.m_DicoParam:
-                    newCode+="\tcase "+i+":\n"
+                    newCode+="\tcase "+str(i)+":\n"
                     if self.m_DicoParam[i].m_bIsShader==True:                
                         newCode+="\t\t return m_param"+str(nbParam)+";\n"
                         nbParam+=1     
@@ -368,3 +369,4 @@ class FFGL20Writer(FFGLWriter):
         code += "\treturn 0;\n"
         code += "}\n"
         return code
+

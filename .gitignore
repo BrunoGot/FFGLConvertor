@@ -1,3 +1,8 @@
 *.pyc
 *.cpp
 *.h
+venv/Lib/site-packages/PySide2/opengl32sw.dll
+venv/Lib/site-packages/PySide2/Qt5WebEngine.dll
+venv/Lib/site-packages/PySide2/Qt5WebEngineCore.dll
+venv/Lib/site-packages/PySide2/resources/icudtl.dat
+venv/Lib/site-packages/numpy/.libs/libopenblas64__v0.3.21-gcc_10_3_0.dll

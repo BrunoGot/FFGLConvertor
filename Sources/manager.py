@@ -1,5 +1,6 @@
 # Use Python 3.x.x
 #Todo : continue the RecordParam function in the FFGL Reader
+import os
 
 from Form1 import *
 from FFGLReader import *
@@ -9,16 +10,22 @@ import FFGLParameter
 import FFGLInformation
 
 class Manager():
-    def __init__(self): 
+    def __init__(self, config_data):
+        self.cpp_path_template = os.path.join(config_data["Path"], config_data["TemplateCPP"])
+        self.header_path_template = os.path.join(config_data["Path"], config_data["TemplateH"])
+        self.export_path = config_data["ExportPath"]
+        self.config_data = config_data
+
+    def start_consol(self):
         form = Form1()
         form.ShowForm()
         param = form.GetParams()
         print("init : param = %s" % param)
-        if(param[0] == "1"): #if the mode =="1" convert ffgl        
+        if(param[0] == "1"): #if the mode =="1" convert ffgl
             self.ConvertFFGL(param[1],param[2])
-        elif(param[0] == "2"): #else if the mode =="2" create ffgl        
+        elif(param[0] == "2"): #else if the mode =="2" create ffgl
             self.CreateFFGL(param[1])
-        
+
     def ConvertFFGL(self,  _sConvertMode, _sSrcPath):
             if(_sConvertMode == "15"):
                 ffglReader = FFGLReader() 
@@ -33,28 +40,28 @@ class Manager():
     
     def IDGenerator(self): #ake a class for the FFGL creator
         print("coder l'ID Generator !!")
-        return 'test'    
+        return 'test'
 
-    def CreateFFGL(self,  _sFFGLVersion):
-        '''CreateFFGL works in two steps : input user parameters, then put all these parameters in the FFGL Writer function '''
+    def CreateFFGL(self, _sFFGLVersion, ffgl_type, paramNumber, paramName, paramType, paramVal, pluginDescription, pluginNote, pluginName):
+        '''
+        CreateFFGL works in two steps : input user parameters, then put all these parameters in the FFGL Writer function
+        '''
+        print("test")
         if(_sFFGLVersion == "1"):
             print("You have to code the module to create FFGL 1.5")
         elif(_sFFGLVersion == "2"):
+            print("v2")
             listParams = {} #actualy it's a dictionary but it should be an array
-            ffglType = input("what kind of plugin do you want to create ? : \n 1 = 'Source' \n 2 = 'Effect' \n choice = ")
-            if(ffglType=='1'):
+            ffglType = ffgl_type #input("what kind of plugin do you want to create ? : \n 1 = 'Source' \n 2 = 'Effect' \n choice = ")
+            if(ffglType=='Source'):
                 pluginType="FF_Source"
-            elif(ffglType=='2'):
+            elif(ffglType=='FX'):
                 pluginType="FF_Effect"
             else:
                 print("wrong answere, I have to handle this case, I have to handle the 'Mixer' type also")
 
-            paramNumber = input("how many parameters do you want to create ?") #be careful it must be an integer
             for i in range(0,int(paramNumber)):
                 print("parameter one : ")
-                paramName = input("name of this parameter : ")
-                paramType = input("Type of parameter ? \n 1 = standard \n 2 = boolean \n 3 = speed control \n choice = ")
-                paramVal = input("Default value of the parameter (between 0 to 1) ? : ")
                 var = input("Is the parameter linked to the fragment shader? : \n 1 = yes \n 2 = no ")
                 if(var == '1'):
                     isShaderLinked = True
@@ -65,9 +72,7 @@ class Manager():
                 paramVarName = "m_param"+str(i)
                 param = FFGLParameter.FFGLParameter(paramName, paramType, isShaderLinked, paramVarName, paramVal)
                 listParams[i] = param
-            pluginDescription = input("Quick Description of the plugin")
-            pluginNote = input("Additional comments for the plugin")
-            pluginName = input("Name of the plugin ?")
+
             pluginId = self.IDGenerator()
             apiMaj = "2"
             apiMin = "1"
@@ -75,6 +80,8 @@ class Manager():
             pluginMin = "0"
             ffglInfo = FFGLInformation.FFGLInformation(pluginName, '"'+pluginId+'"', '"'+pluginName+'"', apiMaj, apiMin, pluginMaj, pluginMin, pluginType, '"'+pluginDescription+'"', '"'+pluginNote+'"')
             ffglWriter = FFGL20Writer2.FFGL20Writer2(listParams, ffglInfo) #todo : factorise this line with the ffgl convertion 15-20 module
+            ffglWriter.set_templates(self.cpp_path_template, self.header_path_template)
+            ffglWriter.set_exportPath(self.export_path)
             ffglWriter.WriteFFGL()
 
             """todo : 
@@ -87,5 +94,7 @@ class Manager():
         
             """
             print("You have to code the module to create FFGL 2.0")
-           
-m = Manager()
+        else:
+            print("fuck")
+if __name__ == "__main__":
+    m = Manager()

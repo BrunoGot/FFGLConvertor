@@ -1,3 +1,5 @@
+import os
+
 from FFGLReader import FFGLInformation #test this import
 #TODO : write the code ini a new file
 
@@ -17,12 +19,17 @@ class FFGLWriter():
         
         self.m_PluginInfo = _pluginInfo
         print("Plugin info className = "+self.m_PluginInfo.m_sClassName)
- #       print("plugin info = "+str(self.m_PluginInfoTab))
+
+    def set_templates(self, cpp_path_template, header_path_template):
+        self.cpp_path_template = cpp_path_template
+        self.header_path_template = header_path_template
+
+    def set_export_path(self, export_path):
+        self.export_path = export_path
     
 class FFGL20Writer(FFGLWriter):
     m_sIncludePart = '#include <FFGL.h>' +'\n#include <FFGLLib.h>' +'\n#include "AddSubtract.h"'+'\n#include "../../lib/ffgl/utilities/utilities.h"' # va disparaitre
-    m_sTemplateFileName = "FFGLTemplateDefault2.cpp"
-    m_sTemplateHeaderFile = "FFGLTemplateDefault2.h"
+
     test = ""
     def __init__(self, _dicoParam, _pluginInfo): #_dicoParam : dico<int, FFGLParameter>
         print("__Init__ FFGL20Writer")
@@ -69,9 +76,10 @@ class FFGL20Writer(FFGLWriter):
                 line+="\n"
             fo.write(line)
         fo.close()
+        print("saved as : {}".format(_fileName))
         
     def WriteHeader(self, _dicoVar):
-        f= open(self.m_sTemplateHeaderFile,"r")
+        f= open(self.header_path_template,"r")
         newCode = []
         code = f.readlines()
         bTimeVarDefined = False #boolean helping don't implement time var twice
@@ -122,7 +130,7 @@ class FFGL20Writer(FFGLWriter):
     #write the .cpp file and return all the variables to creates
     def WriteCPPFile(self):
         print("test WriteFFGL")
-        templateFFGL = open(self.m_sTemplateFileName,"r")
+        templateFFGL = open(self.cpp_path_template,"r")
         code = templateFFGL.readlines()
         dicoGluniform = {} #dico containing number of gluniform to create and gluniform type (uniform4,3,2...)
         listParamLocation = [] #list of paramterLocation

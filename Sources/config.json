@@ -1,6 +1,6 @@
 {
 	"Path" : "D:\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Templates",
-	"TemplateCPP": "FFGLTemplateDefault2.cpp",
+	"TemplateCPP": "FFGLTemplateDefault3.cpp",
 	"TemplateH": "FFGLTemplateDefault2.h",
-	"ExportPath" : "D:\\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Out"
+	"ExportPath" : "D:\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Out"
 }

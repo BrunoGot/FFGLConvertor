@@ -4,18 +4,23 @@ from FFGLReader import FFGLInformation #test this import
 #TODO : write the code ini a new file
 
 class FFGLWriter():
-    m_DicoParam= {} #dictionary containing parameters class as dico<int, FFGLParameter> (string) paramName, (string) param type : FF_TYPE_STANDARD/speed , (string) param default value, (bool) is connected to shader, (string) shader var name
-    m_PluginInfo = FFGLInformation.FFGLInformation("","","","","","","","","","")
+    list_params = [] #list containing parameters class (string) paramName, (string) param type : FF_TYPE_STANDARD/speed , (string) param default value, (bool) is connected to shader, (string) shader var name
     m_bImplementTime = False
     m_dicoVar = {} #dictionary<string, string> (paramName,variable type) dictionary containing the new variables created and have to written in the header file
     m_dicoSpeedShader = {} #dictionary to implement speed into the shader. It contain all variables l
     m_tabFunction = [] #array[string] containing special functions to write in the header part
-    def __init__(self, _dicoParam, _pluginInfo):
-        self.m_DicoParam = _dicoParam
+
+    def __init__(self, list_params, _pluginInfo):
+        """
+
+        :param list_params: list [FFGLParameter]
+        :param _pluginInfo: FFGLInformation
+        """
+        self.list_params = list_params
         index = 0
-        for k in self.m_DicoParam:
+        for param in self.list_params:
             index+=1
-            print("param %s" %index+" = " +self.m_DicoParam[k].m_sParamName+" - "+self.m_DicoParam[k].m_sTypeParam + " - "+self.m_DicoParam[k].m_sParamValue + " - is shader param = "+str(self.m_DicoParam[k].m_bIsShader) + " - VariableName = "+self.m_DicoParam[k].m_sVarName)        
+            print("param %s" %index+" = " +param.m_sParamName+" - "+param.m_sTypeParam + " - "+param.m_sParamValue + " - is shader param = "+str(param.m_bIsShader) + " - VariableName = "+param.m_sVarName)
         
         self.m_PluginInfo = _pluginInfo
         print("Plugin info className = "+self.m_PluginInfo.m_sClassName)
@@ -31,14 +36,10 @@ class FFGL20Writer(FFGLWriter):
     m_sIncludePart = '#include <FFGL.h>' +'\n#include <FFGLLib.h>' +'\n#include "AddSubtract.h"'+'\n#include "../../lib/ffgl/utilities/utilities.h"' # va disparaitre
 
     test = ""
-    def __init__(self, _dicoParam, _pluginInfo): #_dicoParam : dico<int, FFGLParameter>
+    def __init__(self, list_params, _pluginInfo):
         print("__Init__ FFGL20Writer")
-        FFGLWriter.__init__(self,_dicoParam,_pluginInfo)
+        FFGLWriter.__init__(self,list_params,_pluginInfo)
         self.ConvertParamInfo()
-       # print("_dicoParam = " +self.m_DicoParam  )
-        
-        #super.m_DicoParam = _dicoParam
-      #  print("include part = "+self.m_sIncludePart)
         
     #convert the paramInfo plugin sectin to the new format for FFGL2.0
     def ConvertParamInfo(self): 
@@ -70,13 +71,14 @@ class FFGL20Writer(FFGLWriter):
         self.SaveFile(headerCode,fileName +".h") #save the header into a .h file
     
     def SaveFile(self, _tabCode, _fileName):
-        fo = open(_fileName, "w")
+        path = os.path.join(self.export_path,_fileName)
+        fo = open(path, "w")
         for line in _tabCode:
             if line.endswith("\n") == False:
                 line+="\n"
             fo.write(line)
         fo.close()
-        print("saved as : {}".format(_fileName))
+        print("saved as : {}".format(path))
         
     def WriteHeader(self, _dicoVar):
         f= open(self.header_path_template,"r")
@@ -144,10 +146,8 @@ class FFGL20Writer(FFGLWriter):
             newCode += line
 
             if "/*###DefineSection###*/" in line:
-                index = 0
-                for i in self.m_DicoParam:
-                    newCode+="#define "+str(i)+" ("+str(index)+")\n"
-                    index +=1
+                for p in self.list_params:
+                    newCode+=f"#define {p.ffgl_param_index} ({p.index})\n"
             #todo : make a structure for PluginInfo with it's name, id, version etc.... it will be easier and cleaner to conver it.
             
             if "/*###FFGLInfoSection###*/" in line :
@@ -162,37 +162,41 @@ class FFGL20Writer(FFGLWriter):
                 newCode +=  "\t"+self.m_PluginInfo.m_sDescription+",\t// Plugin description\n"
                 newCode +=  "\t"+self.m_PluginInfo.m_sAbout+"\t// About\n"           
 
+            if "/*###FragShaderProgram###*/" in line:
+                newCode+=self.m_PluginInfo.shader_code
+
             if "/*###InitParams###*/" in line:
-#                print(self.m_DicoParam)
+                print(self.list_params)
                 newCode+="\t//init the params here \n"
                 index = 0
                 indexSpeed = 0
-                for i in self.m_DicoParam:
+                for param in self.list_params:
                     newParam = ""
-                    if self.m_DicoParam[i].m_sTypeParam == "Speed":
+                    if param.m_sTypeParam == "Speed":
                         indexSpeed +=1
                         timeVarName = "m_time"+str(indexSpeed)
                         self.m_dicoVar[timeVarName] = "float" #save in this buffer to declare it in the header when needed                        
-                        dicoParamSpeedName[self.m_DicoParam[i].m_sVarName] = timeVarName #save all the param who will be linked to the time in this array
-                    if self.m_DicoParam[i].m_bIsShader == False:
-                        newParam = self.m_DicoParam[i].m_sVarName #.replace('"','')
+                        dicoParamSpeedName[param.m_sVarName] = timeVarName #save all the param who will be linked to the time in this array
+                    if param.m_bIsShader == False:
+                        newParam = param.m_sVarName #.replace('"','')
                     else:
                         index+=1
                         newParam = "m_param"+str(index) #rename only the parameters to link to the shader                    
-                    #param ="write :" +self.m_DicoParam[i].m_sParamName+" - "+self.m_DicoParam[i].m_sTypeParam
+                    #param ="write :" +self.list_params[i].m_sParamName+" - "+self.list_params[i].m_sTypeParam
                     #print(param)
-                    newCode += "\t"+newParam+"("+self.m_DicoParam[i].m_sParamValue+" ),\n" #write parameters initialisation like m_param1(0.5)
+                    newCode += "\t"+newParam+"("+param.m_sParamValue+" ),\n" #write parameters initialisation like m_param1(0.5)
                     self.m_dicoVar[newParam] = "float"
             if "/*###AddParameterSection###*/" in line:
                 newCode+="\t//Add the params here \n"
-                for i in self.m_DicoParam:
-                    param = self.m_DicoParam[i]
-                    paramType = param.m_sTypeParam
-                    if paramType == "Speed": #some parameter type has been marked as "speed" because they need a different implementation of classic FF_Type_Standard
-                        paramType = "FF_TYPE_STANDARD" #However, in the SetParamInfo section we need to write the param as a FF_Type_Standard
+                index = 0
+                for param in self.list_params:
+                    index+=1
+                    if param.m_sTypeParam == "Speed": #some parameter type has been marked as "speed" because they need a different implementation of classic FF_Type_Standard
+                        param.m_sTypeParam = "FF_TYPE_STANDARD" #However, in the SetParamInfo section we need to write the param as a FF_Type_Standard
                         self.m_bImplementTime =True
-                    print("\tSetParamInfof("+str(i)+", "+param.m_sParamName+", "+paramType+");\n")
-                    newCode += "\tSetParamInfof("+str(i)+", "+param.m_sParamName+", "+paramType+");\n"
+                    param_info_line = '\tSetParamInfof({}, "{}", {});\n'.format(param.ffgl_param_index,param.m_sParamName,param.m_sTypeParam)
+                    print(param_info_line)
+                    newCode += param_info_line
                 if self.m_bImplementTime == True:
                     newCode+="\n\t/*###Implement time###*/\n"
                     #init the time1....2...3 variable also here
@@ -217,8 +221,8 @@ class FFGL20Writer(FFGLWriter):
                 paramNumber = 0 #count number of parameters linked with shaders
                 paramSpeedNumber = len(dicoParamSpeedName) #count the number of parameter linked to the time
                 #count the number of parameter who should be linked to the shader and give this number to the CreateGLParamFunction
-                for i in self.m_DicoParam:
-                    if self.m_DicoParam[i].m_bIsShader == True:
+                for param in self.list_params:
+                    if param.m_bIsShader == True:
                         paramNumber+=1
                 dicoGluniform = self.CreateGlParam(paramNumber)
                 dicoGlSpeedUniform = self.CreateGlParam(paramSpeedNumber)
@@ -298,25 +302,25 @@ class FFGL20Writer(FFGLWriter):
             if "/*###SetParamValue###*/\n" in line:
                 newCode+="\t//Set the parameters value here \n"
                 nbParam=1
-                for i in self.m_DicoParam:
-                    newCode+="\tcase "+str(i)+":\n"
-                    if self.m_DicoParam[i].m_bIsShader==True:
+                for param in self.list_params:
+                    newCode+="\tcase "+str(param.ffgl_param_index)+":\n"
+                    if param.m_bIsShader==True:
                         newCode+="\t\tm_param"+str(nbParam)+" = value;\n"
                         nbParam+=1
                     else:
-                        newCode+="\t\t "+self.m_DicoParam[i].m_sVarName+" = value;\n"                        
+                        newCode+="\t\t "+param.m_sVarName+" = value;\n"
                     newCode+="\t\tbreak;\n"
             if "/*###GetParamValue###*/\n" in line:
                 #write the parameters here
                 newCode+="\t//Get the parameters value here \n"
                 nbParam=1
-                for i in self.m_DicoParam:
-                    newCode+="\tcase "+str(i)+":\n"
-                    if self.m_DicoParam[i].m_bIsShader==True:                
+                for param in self.list_params:
+                    newCode+="\tcase "+str(param.ffgl_param_index)+":\n"
+                    if param.m_bIsShader==True:
                         newCode+="\t\t return m_param"+str(nbParam)+";\n"
                         nbParam+=1     
                     else:
-                        newCode+="\t\treturn "+self.m_DicoParam[i].m_sVarName+";\n"           
+                        newCode+="\t\treturn "+param.m_sVarName+";\n"
         if self.m_bImplementTime == True:
             newCode+=self.ImplementTimeFunction()
         print(newCode)

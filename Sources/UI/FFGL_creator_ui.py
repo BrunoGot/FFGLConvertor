@@ -30,6 +30,11 @@ class FFGLCreatorUI(QtWidgets.QWidget):
         self.ffgl_id_input = QtWidgets.QLineEdit()
         name_input_layout.addWidget(self.ffgl_id_input)
         self.main_layout.addLayout(name_input_layout)
+        #nb param
+        ffgl_parm_num_label = QtWidgets.QLabel("param number : ")
+        name_input_layout.addWidget(ffgl_parm_num_label)
+        self.ffgl_parm_number = QtWidgets.QLabel("0")
+        name_input_layout.addWidget(self.ffgl_parm_number)
         #type menu section
         self.ffgl_type_menu = DropDownMenuUI("Type")
         self.ffgl_type_menu.add_option("FX", self.on_ffgl_type_selected)
@@ -84,3 +89,17 @@ class FFGLCreatorUI(QtWidgets.QWidget):
 
     def trig_error(self, msg):
         print("error : {}".format(msg))
+
+    def get_input_datas(self):
+        """
+        get all the input datas into a dictionary and return it
+        :return:
+        """
+        ffgl_data = {}
+        ffgl_data["pluginName"] = self.ffgl_name_input.text()
+        ffgl_data["pluginID"] = self.ffgl_id_input.text()
+        ffgl_data["pluginDescription"] = self.comment_input.toPlainText()
+        ffgl_data["pluginNote"] = self.additional_com_input.toPlainText()
+        ffgl_data["Type"] = self.ffgl_type_menu.text()
+        return ffgl_data
+

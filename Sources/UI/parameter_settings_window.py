@@ -38,9 +38,12 @@ class ParameterSettingsWindow(QtWidgets.QWidget):
         self.close()
 
     def on_create(self):
-        parameter_info = {}
-        parameter_info["type"] = self.dropdown_param_select.text()
-        self._create_param_callback(parameter_info)
+        parameter_infos = {}
+        parameter_infos["Type"] = self.dropdown_param_select.text()
+        parameter_infos["Name"] = "Test"
+        parameter_infos["IsShader"] = "True"
+        parameter_infos["Value"] = "0.0"
+        self._create_param_callback(parameter_infos)
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication([])

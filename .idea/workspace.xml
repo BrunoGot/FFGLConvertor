@@ -23,19 +23,22 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="582e2c5c-faf9-48d1-858f-89721bd16b51" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Sources/Templates/FFGLTemplateDefault1.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/UI/FFGL_creator_ui.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/UI/dropdown_menu_ui.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/config.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Sources/Core/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Sources/Core/config_manager.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Sources/Unittests/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Sources/Unittests/test_core_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLTemplateDefault1.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLTemplateDefault1.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLTemplateDefault2.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLTemplateDefault2.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/FFGLInformation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLInformation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/FFGLParameter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/Core/ffgl_parameter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/FFGLReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLReader.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/FFGLWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/Manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/manager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/FFGLWriters/FFGL20Writer2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLWriters/FFGL20Writer2.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/UI/FFGL_creator_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/FFGL_creator_ui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/UI/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/main_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/UI/opengl_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/opengl_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/config.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +48,7 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Python Unit Test" />
         <option value="Python Script" />
       </list>
     </option>
@@ -69,12 +73,16 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/Sources/Templates" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="D:\Documents\Code\Python\FFGLConvertor\Sources\Templates" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="D:\Documents\Code\Python\FFGLConvertor\Sources\Core" />
       <recent name="D:\Documents\Code\Python\FFGLConvertor\Sources\Templates" />
     </key>
   </component>
@@ -100,7 +108,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="manager" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="manager (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="FFGLConvertor" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -112,7 +120,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="D:\Documents\Code\Python\FFGLConvertor\Sources\manager.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Sources/manager.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -142,33 +150,41 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="parameter_settings_window" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Unittests for test_core_manager.MyTestCase.test_simple_FFGL_no_parameter" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
       <module name="FFGLConvertor" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Sources/UI" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Sources/Unittests" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_core_manager.MyTestCase.test_simple_FFGL_no_parameter&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Unittests for test_core_manager.MyTestCase.test_simple_FFGL_one_parameter" type="tests" factoryName="Unittests" temporary="true" nameIsGenerated="true">
+      <module name="FFGLConvertor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Sources/Unittests" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="_new_additionalArguments" value="&quot;&quot;" />
+      <option name="_new_target" value="&quot;test_core_manager.MyTestCase.test_simple_FFGL_one_parameter&quot;" />
+      <option name="_new_targetType" value="&quot;PYTHON&quot;" />
       <method v="2" />
     </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.manager" />
-        <item itemvalue="Python.parameter_settings_window" />
         <item itemvalue="Python.opengl_window" />
+        <item itemvalue="Python tests.Unittests for test_core_manager.MyTestCase.test_simple_FFGL_one_parameter" />
+        <item itemvalue="Python tests.Unittests for test_core_manager.MyTestCase.test_simple_FFGL_no_parameter" />
+        <item itemvalue="Python.manager (1)" />
       </list>
     </recent_temporary>
   </component>

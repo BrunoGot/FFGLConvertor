@@ -207,7 +207,7 @@ class OpenGLWindow(QOpenGLWidget):
             self.fragment_shader_source = '''
                             void main()
                             {
-                                out_color = vec4(pos.x);
+                                out_color = vec4(uv.x);
                             }
                         '''
 
@@ -221,10 +221,10 @@ class OpenGLWindow(QOpenGLWidget):
                     #version 410
 
                     in vec3 position;
-                    out vec2 pos;
+                    out vec2 uv;
                     void main()
                     {
-                        pos = position.xy*0.5+0.5;
+                        uv = position.xy*0.5+0.5;
                         gl_Position = vec4(position, 1.0);
                     }
                 '''
@@ -285,7 +285,7 @@ class OpenGLWindow(QOpenGLWidget):
 
     def format_shader(self, text):
         return """#version 410
-        in vec2 pos;
+        in vec2 uv;
         out vec4 out_color;
         {0}
         """.format(text)

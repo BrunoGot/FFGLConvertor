@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import re
-import FFGLParameter
+from Core.ffgl_parameter import FFGLParameter
 import FFGLInformation
         
 class FFGLReader:
-    m_pluginInfo = FFGLInformation.FFGLInformation("","","","","","","","","","") #structure containing the plugin info section
+    m_pluginInfo = FFGLInformation.FFGLInformation("","","","","","","","","","", "") #structure containing the plugin info section
     m_sSourceFile = "" #the file to read
    #obselete m_sPluginInfo = [] #var containing the plugin info section
     m_dicoParam = {} #var containing parameters in a dictionary struct
@@ -324,5 +324,5 @@ class FFGLReader:
         paramLine = self.ClearInutilChar(paramLine)
         print("paramLine after remove = "+paramLine)        
         paramLine = paramLine.split(',')
-        paramStruct = FFGLParameter.FFGLParameter(paramLine[0],paramLine[2],False,paramLine[1],paramLine[3]) #continue here
+        paramStruct = FFGLParameter(paramLine[0],paramLine[2],False,paramLine[1],paramLine[3]) #continue here
         self.m_dicoParam[paramLine[0]] = paramStruct

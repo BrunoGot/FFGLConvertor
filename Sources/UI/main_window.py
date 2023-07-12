@@ -1,4 +1,3 @@
-import json
 from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
@@ -7,6 +6,9 @@ from opengl_window import OpenGLWindow
 from parameter_settings_window import ParameterSettingsWindow
 from FFGL_creator_ui import FFGLCreatorUI
 from manager import Manager
+from Core.ffgl_parameter import FFGLParameter
+from Core import config_manager as config
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow,self).__init__()
@@ -34,11 +36,11 @@ class FFGL_write_window(QWidget):
                                 out_color = vec4(pos.x);
                             }"""
 
-        #config
-        config_file_path = "D:\Documents\Code\Python\FFGLConvertor\Sources\config.json"
-        with open(config_file_path) as json_file:
-            config_file = json_file.read()
-        config_data = json.loads(config_file)
+        config_data = config.get_datas()
+
+        #list of created parameter will need to move somwhere else, make a specific parameter object and add it to an ffgl object
+        self.parameters = [] #list of FFGLParameter
+
         #ffgl core management
         self.ffgl_manager = Manager(config_data)
 
@@ -110,7 +112,7 @@ class FFGL_write_window(QWidget):
         """
         print("create_parameter_handler")
         print(parameter_infos)
-        type = parameter_infos.get("type")
+        type = parameter_infos.get("Type")
         if type.lower() == "slider":
             print("create slider")
             slider_widget = QtWidgets.QSlider(Qt.Horizontal)
@@ -119,8 +121,9 @@ class FFGL_write_window(QWidget):
             slider_widget.setValue(5)
             self.parameter_layout.addWidget(slider_widget)
             self.parameter_layout.update()
-
-    """todo: gerer les template et connecter aux input avec ffgl_creator_module.check_input():"""
+        parameter = FFGLParameter(parameter_infos["Type"], parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"])
+        self.parameters.append(parameter)
+    """todo: gerer les unittest et parameters input"""
 
     def on_create_FFGL(self):
         """
@@ -128,8 +131,8 @@ class FFGL_write_window(QWidget):
         :return:
         """
         if self.ffgl_creator_module.check_input():
-            pass
+            ffgl_info = self.ffgl_creator_module.get_input_datas()
             #    print("check input")
             #glsl_code = ""
-        ffgl_info = {"ffgl_type" : "FX", "paramNumber" : "1", "paramName" : "test", "paramType" : "1", "paramVal" : "0", "pluginDescription" : "", "pluginNote" : "", "pluginName" : "testYoua"}
-        self.ffgl_manager.CreateFFGL("2", ffgl_info["ffgl_type"], ffgl_info["paramNumber"], ffgl_info["paramName"], ffgl_info["paramType"], ffgl_info["paramVal"], ffgl_info["pluginDescription"], ffgl_info["pluginNote"], ffgl_info["pluginName"])
+            #ffgl_info = {"ffgl_type" : "FX", "paramNumber" : "1", "paramName" : "test", "paramType" : "1", "paramVal" : "0", "pluginDescription" : "", "pluginNote" : "", "pluginName" : "testYoua"}
+            self.ffgl_manager.CreateFFGL("2", ffgl_info["Type"], self.parameters, ffgl_info["pluginDescription"], ffgl_info["pluginNote"], ffgl_info["pluginName"], self.shader_txt_widget.toPlainText())

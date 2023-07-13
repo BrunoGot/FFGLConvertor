@@ -33,7 +33,7 @@ class FFGL_write_window(QWidget):
         super(FFGL_write_window, self).__init__()
         shader_base_text = """void main()
                             {
-                                out_color = vec4(pos.x);
+                                out_color = vec4(uv.x);
                             }"""
 
         config_data = config.get_datas()
@@ -121,7 +121,7 @@ class FFGL_write_window(QWidget):
             slider_widget.setValue(5)
             self.parameter_layout.addWidget(slider_widget)
             self.parameter_layout.update()
-        parameter = FFGLParameter(parameter_infos["Type"], parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"])
+        parameter = FFGLParameter(parameter_infos["Type"], parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
         self.parameters.append(parameter)
     """todo: gerer les unittest et parameters input"""
 

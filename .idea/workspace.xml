@@ -23,22 +23,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="582e2c5c-faf9-48d1-858f-89721bd16b51" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Sources/Core/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/Core/config_manager.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/Unittests/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Sources/Unittests/test_core_manager.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLInformation.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLInformation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLParameter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/Core/ffgl_parameter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLReader.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLReader.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLWriter.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLWriters/FFGL20Writer2.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLWriters/FFGL20Writer2.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/UI/FFGL_creator_ui.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/FFGL_creator_ui.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/UI/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/main_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/UI/opengl_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/opengl_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/manager.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

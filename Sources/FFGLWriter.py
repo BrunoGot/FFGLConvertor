@@ -177,11 +177,7 @@ class FFGL20Writer(FFGLWriter):
                         timeVarName = "m_time"+str(indexSpeed)
                         self.m_dicoVar[timeVarName] = "float" #save in this buffer to declare it in the header when needed                        
                         dicoParamSpeedName[param.m_sVarName] = timeVarName #save all the param who will be linked to the time in this array
-                    if param.m_bIsShader == False:
-                        newParam = param.m_sVarName #.replace('"','')
-                    else:
-                        index+=1
-                        newParam = "m_param"+str(index) #rename only the parameters to link to the shader                    
+                    newParam = param.m_sVarName #.replace('"','')
                     #param ="write :" +self.list_params[i].m_sParamName+" - "+self.list_params[i].m_sTypeParam
                     #print(param)
                     newCode += "\t"+newParam+"("+param.m_sParamValue+" ),\n" #write parameters initialisation like m_param1(0.5)
@@ -218,13 +214,13 @@ class FFGL20Writer(FFGLWriter):
                    # self.m_dicoVar["start"] = "std::chrono::steady_clock::time_point"
                    # self.m_dicoVar["end"] = "std::chrono::steady_clock::time_point"
             if "/*###InitUniforms###*/" in line:
-                paramNumber = 0 #count number of parameters linked with shaders
+                shaderParams = [] # parameters linked with shaders
                 paramSpeedNumber = len(dicoParamSpeedName) #count the number of parameter linked to the time
                 #count the number of parameter who should be linked to the shader and give this number to the CreateGLParamFunction
                 for param in self.list_params:
                     if param.m_bIsShader == True:
-                        paramNumber+=1
-                dicoGluniform = self.CreateGlParam(paramNumber)
+                        shaderParams.append(param)
+                dicoGluniform = self.CreateGlParam(len(shaderParams))
                 dicoGlSpeedUniform = self.CreateGlParam(paramSpeedNumber)
                 
                 newCode+="\t//assign the uniforms here \n"
@@ -234,7 +230,7 @@ class FFGL20Writer(FFGLWriter):
                         nbParam+=1
                         paramName = "ParamLocation"+str(nbParam)
                         listParamLocation.append(paramName)
-                        newCode+="\t"+paramName+" = m_shader.FindUniform(\"m_param"+str(nbParam)+"\");\n"
+                        newCode+=f"\t{paramName}= m_shader.FindUniform(\"m_param{i}_{nbParam}\");\n"
                 
                 #create paramLocation for speed
                 nbParam = 0 #reinit the param counter
@@ -266,12 +262,13 @@ class FFGL20Writer(FFGLWriter):
                         newCode+="\tglUniform"+str(i)+"f("+unfiformName+", "
                         index+=1
                         for k in range(0,i):
-                            paramCount+=1
-                            newCode += "m_param"+str(paramCount) #start at "m_param1"
+                            newCode += shaderParams[paramCount].m_sVarName #start at "m_param1"
                             if k==i-1: #if it's the last iteration, end the line
                                 newCode+=");\n"
                             else:
                                 newCode+=", "
+                            paramCount += 1
+
                 newCode+= "\n" #end of the section
                 
                 index=0 #reinit the index
@@ -301,26 +298,16 @@ class FFGL20Writer(FFGLWriter):
             #TODO : renomer les varName des shader de l'objet self.m_DicoParam
             if "/*###SetParamValue###*/\n" in line:
                 newCode+="\t//Set the parameters value here \n"
-                nbParam=1
                 for param in self.list_params:
                     newCode+="\tcase "+str(param.ffgl_param_index)+":\n"
-                    if param.m_bIsShader==True:
-                        newCode+="\t\tm_param"+str(nbParam)+" = value;\n"
-                        nbParam+=1
-                    else:
-                        newCode+="\t\t "+param.m_sVarName+" = value;\n"
+                    newCode+="\t\t "+param.m_sVarName+" = value;\n"
                     newCode+="\t\tbreak;\n"
             if "/*###GetParamValue###*/\n" in line:
                 #write the parameters here
                 newCode+="\t//Get the parameters value here \n"
-                nbParam=1
                 for param in self.list_params:
                     newCode+="\tcase "+str(param.ffgl_param_index)+":\n"
-                    if param.m_bIsShader==True:
-                        newCode+="\t\t return m_param"+str(nbParam)+";\n"
-                        nbParam+=1     
-                    else:
-                        newCode+="\t\treturn "+param.m_sVarName+";\n"
+                    newCode+="\t\treturn "+param.m_sVarName+";\n"
         if self.m_bImplementTime == True:
             newCode+=self.ImplementTimeFunction()
         print(newCode)

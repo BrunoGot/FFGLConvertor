@@ -67,8 +67,9 @@ class FFGL20Writer(FFGLWriter):
         cppCode = self.WriteCPPFile() #fill self.m_dicoVar with the variables to creates
         headerCode = self.WriteHeader(self.m_dicoVar) 
         #record the new code
-        self.SaveFile(cppCode, fileName+".cpp") #save the implementation part into a .cpp file
-        self.SaveFile(headerCode,fileName +".h") #save the header into a .h file
+        cpp_path = self.SaveFile(cppCode, fileName+".cpp") #save the implementation part into a .cpp file
+        header_path = self.SaveFile(headerCode,fileName +".h") #save the header into a .h file
+        return {"cpp" : cpp_path,"header":header_path}
     
     def SaveFile(self, _tabCode, _fileName):
         path = os.path.join(self.export_path,_fileName)
@@ -79,6 +80,7 @@ class FFGL20Writer(FFGLWriter):
             fo.write(line)
         fo.close()
         print("saved as : {}".format(path))
+        return path
         
     def WriteHeader(self, _dicoVar):
         f= open(self.header_path_template,"r")
@@ -113,7 +115,7 @@ class FFGL20Writer(FFGLWriter):
                 newCode.append("\n") #jump a line !
                 for f in self.m_tabFunction:
                     newCode.append("\t"+f+";\n")      
-       # f.close()
+        f.close()
         return newCode
         
     #this function define how many glUniform have to be created and what kind of glUniform (glUniform2f, glUniform4f...) it return the optiimal numer of glUniform to create 
@@ -312,13 +314,15 @@ class FFGL20Writer(FFGLWriter):
             newCode+=self.ImplementTimeFunction()
         print(newCode)
         print("### End new code ###")
+        templateFFGL.close()
+
         return newCode.split('\n') #convert the string into a tab[] before return the value. 
         # create new cpp file
         # get FFGL2.0 template
         # insert parameter
         # print ffgltemplate into the cpp file
         # let see what's happen
-        
+
     def UpdateTime(self, _dicoTime):
         code = "\n\t/*##Update Time##*/\n"
         code += "\t/*the time is just imlemented to gives you possibility to use it. recode manually the way your are using the time var*/\n"

@@ -1,6 +1,6 @@
 from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton
+from PySide2.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit
 
 from opengl_window import OpenGLWindow
 from parameter_settings_window import ParameterSettingsWindow
@@ -47,30 +47,42 @@ class FFGL_write_window(QWidget):
         self.parameter_settings_window = ParameterSettingsWindow(create_param_callback=self.create_parameter_handler)
         #Write layout
         write_layout = QVBoxLayout()
-        self.shader_txt_widget = QtWidgets.QTextEdit()
+        self.shader_txt_widget = QTextEdit()
         self.shader_txt_widget.setText(shader_base_text)
         write_layout.addWidget(self.shader_txt_widget)
         menu_layout = QHBoxLayout()
-        submit_button = QPushButton("update")
-        submit_button.clicked.connect(self.update_shader)
-        menu_layout.addWidget(submit_button)
+        save_button = QPushButton("Save")
+        save_button.clicked.connect(self.save_shader)
+        menu_layout.addWidget(save_button)
+        load_button = QPushButton("Load")
+        load_button.clicked.connect(self.load_shader)
+        menu_layout.addWidget(load_button)
         write_layout.addLayout(menu_layout)
 
         #opengl Layout
         self.opengl_layout = QVBoxLayout()
 
-
-        self.create_parameter_btn = QPushButton("Create Parameter")
-        self.create_parameter_btn.clicked.connect(self.create_parameter)
-        self.opengl_layout.addWidget(self.create_parameter_btn)
+        self.parameter_menu_layout = QHBoxLayout()
+        self.create_slider_btn = QPushButton("Create Slider")
+        self.create_slider_btn.clicked.connect(self.create_slider)
+        self.parameter_menu_layout.addWidget(self.create_slider_btn)
+        self.create_checkbox_btn = QPushButton("Create Checkbox")
+        self.create_checkbox_btn.clicked.connect(self.create_checkbox)
+        self.parameter_menu_layout.addWidget(self.create_checkbox_btn)
+        self.opengl_layout.addLayout(self.parameter_menu_layout)
+        #dynamic parameter section
         self.parameter_layout = QVBoxLayout()
-
-        self.opengl_layout.addWidget(self.create_parameter_btn)
         self.opengl_layout.addLayout(self.parameter_layout)
 
         self.opengl_widget = OpenGLWindow(shader_base_text)
         self.opengl_widget.setFixedSize(300, 300)
         self.opengl_layout.addWidget(self.opengl_widget)
+        self.log_error_consol = QTextEdit()
+        self.opengl_layout.addWidget(QLabel("log error : "))
+        self.opengl_layout.addWidget(self.log_error_consol)
+        submit_button = QPushButton("update")
+        submit_button.clicked.connect(self.update_shader)
+        self.opengl_layout.addWidget(submit_button)
 
         main_ffgl_layout = QVBoxLayout()
         glsl_dev_module_layout = QHBoxLayout()
@@ -99,9 +111,35 @@ class FFGL_write_window(QWidget):
 
     def update_shader(self):
         print("Update_shader")
-        self.opengl_widget.update_shader(self.shader_txt_widget.toPlainText())
+        self.log_error_consol.clear()
+        success_info = self.opengl_widget.update_shader(self.shader_txt_widget.toPlainText())
+        self.log_error_consol.setText(success_info)
 
-    def create_parameter(self):
+    def save_shader(self):
+        option = QFileDialog.ReadOnly
+        file_dialog = QFileDialog.getSaveFileName(self, "Save Shader","", "Shader Files (*.shd);;All Files (*)", options = option)
+        print(f"save path = {file_dialog[0]}")
+        if file_dialog[0]:
+            path = file_dialog[0]
+            f = open(path,"w")
+            f.write(self.shader_txt_widget.toPlainText())
+            f.close()
+
+    def load_shader(self):
+        option = QFileDialog.ReadOnly
+        file_dialog = QFileDialog.getOpenFileName(self, "Open Shader", "", "Shader Files (*.shd);;All Files (*)",
+                                                  options=option)
+        print(f"save path = {file_dialog[0]}")
+        if file_dialog[0]:
+            path = file_dialog[0]
+            f = open(path, "r")
+            self.shader_txt_widget.setText(f.read())
+            f.close()
+
+    def create_slider(self):
+        self.parameter_settings_window.show()
+
+    def create_checkbox(self):
         self.parameter_settings_window.show()
 
     def create_parameter_handler(self, parameter_infos):
@@ -112,8 +150,9 @@ class FFGL_write_window(QWidget):
         """
         print("create_parameter_handler")
         print(parameter_infos)
-        type = parameter_infos.get("Type")
-        if type.lower() == "slider":
+        widget_type = parameter_infos.get("Type")
+        if widget_type.lower() == "slider":
+            parameter_type = "FF_TYPE_STANDARD"
             print("create slider")
             slider_widget = QtWidgets.QSlider(Qt.Horizontal)
             slider_widget.setMinimum(0)
@@ -121,7 +160,10 @@ class FFGL_write_window(QWidget):
             slider_widget.setValue(5)
             self.parameter_layout.addWidget(slider_widget)
             self.parameter_layout.update()
-        parameter = FFGLParameter(parameter_infos["Type"], parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
+        parameter = FFGLParameter(parameter_type, parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
+        if parameter.m_bIsShader:
+            self.shader_txt_widget.insertPlainText(f"uniform float {parameter.m_sParamName};\n")
+
         self.parameters.append(parameter)
     """todo: gerer les unittest et parameters input"""
 
@@ -135,4 +177,7 @@ class FFGL_write_window(QWidget):
             #    print("check input")
             #glsl_code = ""
             #ffgl_info = {"ffgl_type" : "FX", "paramNumber" : "1", "paramName" : "test", "paramType" : "1", "paramVal" : "0", "pluginDescription" : "", "pluginNote" : "", "pluginName" : "testYoua"}
-            self.ffgl_manager.CreateFFGL("2", ffgl_info["Type"], self.parameters, ffgl_info["pluginDescription"], ffgl_info["pluginNote"], ffgl_info["pluginName"], self.shader_txt_widget.toPlainText())
+            print("create FFGL....")
+            self.ffgl_manager.CreateFFGL("2", ffgl_info["Type"], self.parameters, ffgl_info["pluginDescription"], ffgl_info["pluginNote"], ffgl_info["pluginName"], self.shader_txt_widget.toPlainText(), ffgl_info["pluginID"])
+            print("export FFGL....")
+            self.ffgl_manager.export_ffgl(ffgl_info["pluginName"])

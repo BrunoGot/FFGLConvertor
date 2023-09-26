@@ -245,8 +245,8 @@ class OpenGLWindow(QOpenGLWidget):
 
     def paintGL(self):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
-        gl.glUseProgram(self.shader_program)
 
+        gl.glUseProgram(self.shader_program)
         gl.glBegin(gl.GL_QUADS)
         gl.glVertex2f(-1.0, -1.0)
         gl.glVertex2f(1.0, -1.0)
@@ -256,20 +256,26 @@ class OpenGLWindow(QOpenGLWidget):
 
 
     def load_shader(self):
+        """
+        compile a new shader and link it to the current program if succes
+        :return success_info : a description string about the success of the operation
+        """
+        success_info = ""
         self.fragment_shader = gl.glCreateShader(gl.GL_FRAGMENT_SHADER)
         print("self.format_shader(self.fragment_shader_source) = {}".format(self.format_shader(self.fragment_shader_source)))
         gl.glShaderSource(self.fragment_shader, self.format_shader(self.fragment_shader_source))
         gl.glCompileShader(self.fragment_shader)
         success = gl.glGetShaderiv(self.fragment_shader, gl.GL_COMPILE_STATUS)
         if not success:
-            print("shader error on fragment shader : ")
-            print(gl.glGetShaderInfoLog(self.fragment_shader).decode())
+            success_info = f"shader error on fragment shader : {gl.glGetShaderInfoLog(self.fragment_shader).decode()}"
+        else:
+            self.shader_program = gl.glCreateProgram()
+            gl.glAttachShader(self.shader_program, self.vertex_shader)
+            gl.glAttachShader(self.shader_program, self.fragment_shader)
+            gl.glLinkProgram(self.shader_program)
+            success_info = "shader compiled successfully"
 
-        self.shader_program = gl.glCreateProgram()
-        gl.glAttachShader(self.shader_program, self.vertex_shader)
-        gl.glAttachShader(self.shader_program, self.fragment_shader)
-        gl.glLinkProgram(self.shader_program)
-
+        return success_info
         """success = gl.glGetShaderiv(self.shader_program, gl.GL_LINK_STATUS)
         if not success:
             print("shader program link failed : ")
@@ -279,9 +285,10 @@ class OpenGLWindow(QOpenGLWidget):
         print("shader_text = {0}".format(shader_text))
         self.fragment_shader_source = shader_text
         #gl.glDetachShader(self.shader_program, self.fragment_shader)
-        self.load_shader()
+        success_info = self.load_shader()
         self.update()
         #self.initializeGL()
+        return success_info
 
     def format_shader(self, text):
         return """#version 410

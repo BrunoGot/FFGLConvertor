@@ -1,6 +1,10 @@
 {
+	"FFGLSolutionPath": "D:\\Documents\\Code\\C++\\FFGL\\vfxartshopeffects\\Res7\\ffgl-master\\build\\windows",
 	"Path" : "D:\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Templates",
 	"TemplateCPP": "FFGLTemplateDefault3.cpp",
 	"TemplateH": "FFGLTemplateDefault2.h",
-	"ExportPath" : "D:\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Out"
+	"TemplateProject": "FXTemplate.vcxproj",
+	"FFGLSolutionFile": "FFGLPlugins.sln",
+	"ExportPath" : "D:\\Documents\\Code\\Python\\FFGLConvertor\\Sources\\Out",
+	"OutCppFile" : "D:\\Documents\\Code\\C++\\FFGL\\vfxartshopeffects\\Res7\\ffgl-master\\pluginName"
 }

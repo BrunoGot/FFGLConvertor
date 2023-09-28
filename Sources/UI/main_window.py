@@ -1,6 +1,8 @@
 from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QTextEdit
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
+    QTextEdit,QToolButton
 
 from opengl_window import OpenGLWindow
 from parameter_settings_window import ParameterSettingsWindow
@@ -8,6 +10,7 @@ from FFGL_creator_ui import FFGLCreatorUI
 from manager import Manager
 from Core.ffgl_parameter import FFGLParameter
 from Core import config_manager as config
+from slider_widget import FFGLSlider
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
@@ -44,7 +47,7 @@ class FFGL_write_window(QWidget):
         #ffgl core management
         self.ffgl_manager = Manager(config_data)
 
-        self.parameter_settings_window = ParameterSettingsWindow(create_param_callback=self.create_parameter_handler)
+        self.parameter_settings_window = ParameterSettingsWindow(mode_title="Create",action_callback=self.create_slider_handler)
         #Write layout
         write_layout = QVBoxLayout()
         self.shader_txt_widget = QTextEdit()
@@ -64,7 +67,7 @@ class FFGL_write_window(QWidget):
 
         self.parameter_menu_layout = QHBoxLayout()
         self.create_slider_btn = QPushButton("Create Slider")
-        self.create_slider_btn.clicked.connect(self.create_slider)
+        self.create_slider_btn.clicked.connect(self.on_create_slider)
         self.parameter_menu_layout.addWidget(self.create_slider_btn)
         self.create_checkbox_btn = QPushButton("Create Checkbox")
         self.create_checkbox_btn.clicked.connect(self.create_checkbox)
@@ -136,36 +139,104 @@ class FFGL_write_window(QWidget):
             self.shader_txt_widget.setText(f.read())
             f.close()
 
-    def create_slider(self):
+    def on_create_slider(self):
+        parameter_type = "FF_TYPE_STANDARD"
+        print("create slider")
         self.parameter_settings_window.show()
+
+        """slider_widget = QtWidgets.QSlider(Qt.Horizontal)
+        slider_widget.setMinimum(0)
+        slider_widget.setMaximum(100)
+        slider_widget.setValue(50)
+        slider_widget.setFixedWidth(150)
+        slider_layout = QHBoxLayout()
+        pref_button = QToolButton()
+        pref_button.setIcon(QIcon("Icons/pref_icon.png"))
+        pref_button.setFixedSize(20,20)
+        slider_layout.addWidget(pref_button)
+        slider_layout.addWidget(QLabel("name"))
+        slider_layout.addWidget(QLabel(":"))
+        slider_layout.addWidget(QLabel("value"))
+        slider_layout.addWidget(slider_widget)
+        remove_btn = QToolButton()
+        remove_btn.setIcon(QIcon("Icons/remove_icon.png"))
+        slider_layout.addWidget(remove_btn)
+        self.parameter_layout.addLayout(slider_layout)
+        self.parameter_layout.update()"""
+        """parameter = FFGLParameter(parameter_type, parameter_infos["IsShader"], parameter_infos["Name"],
+                                  parameter_infos["Value"], len(self.parameters))
+        if parameter.m_bIsShader:
+            self.shader_txt_widget.insertPlainText(f"uniform float {parameter.m_sParamName};\n")"""
 
     def create_checkbox(self):
         self.parameter_settings_window.show()
 
-    def create_parameter_handler(self, parameter_infos):
+    def create_slider_handler(self, parameter_infos):
         """
         create a parameter according of the data passed in argument
         :param dictionary parameter_infos: dictionary containing info of the parameter name, type, value, min max
         :return:
         """
-        print("create_parameter_handler")
-        print(parameter_infos)
-        widget_type = parameter_infos.get("Type")
-        if widget_type.lower() == "slider":
-            parameter_type = "FF_TYPE_STANDARD"
-            print("create slider")
-            slider_widget = QtWidgets.QSlider(Qt.Horizontal)
-            slider_widget.setMinimum(0)
-            slider_widget.setMaximum(10)
-            slider_widget.setValue(5)
-            self.parameter_layout.addWidget(slider_widget)
-            self.parameter_layout.update()
-        parameter = FFGLParameter(parameter_type, parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
-        if parameter.m_bIsShader:
-            self.shader_txt_widget.insertPlainText(f"uniform float {parameter.m_sParamName};\n")
+        success = True
+        p_name = parameter_infos["name"]
+        if self.has_parameter(p_name):
+            success = False
+            print("parameter already exist !!")
+        else:
+            ffgl_slider = FFGLSlider(param_name=p_name, param_manager=self)
+            self.parameter_layout.addWidget(ffgl_slider)
+            if ffgl_slider.is_shader:
+                self.add_shader_parameter(p_name)
+            """print("create_parameter_handler")
+            print(parameter_infos)
+            widget_type = parameter_infos.get("Type")
+            if widget_type.lower() == "slider":
+                parameter_type = "FF_TYPE_STANDARD"
+                print("create slider")
+                slider_widget = QtWidgets.QSlider(Qt.Horizontal)
+                slider_widget.setMinimum(0)
+                slider_widget.setMaximum(10)
+                slider_widget.setValue(5)
+                self.parameter_layout.addWidget(slider_widget)
+                self.parameter_layout.update()
+            parameter = FFGLParameter(parameter_type, parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
+            """
 
-        self.parameters.append(parameter)
-    """todo: gerer les unittest et parameters input"""
+            self.parameters.append(ffgl_slider)
+        return success
+        """todo: gerer les unittest et parameters input"""
+
+    def has_parameter(self, p_name):
+        """
+        Check if a parameter is already existing
+        :param str p_name:
+        :return FFGLSlider param: return the parameter if the parameter exist or None otherwise
+        """
+        param = None
+        for p in self.parameters:
+            if p.name == p_name:
+                param = p
+                break
+        return param
+
+    def add_shader_parameter(self,p_name):
+        self.shader_txt_widget.insertPlainText(f"uniform float {p_name};\n")
+
+    def update_shader_parameter(self,old_p_name, new_p_name):
+        """
+        trigg by the
+        :param  dictionary parameter_infos: dictionary containing info of the parameter name, type, value, min max
+        :return:
+        """
+        #print(slider.name)
+        text = self.shader_txt_widget.toPlainText()
+        text = text.replace(old_p_name, new_p_name)
+        self.shader_txt_widget.setText(text)
+        #self.update()
+        """p_name = parameter_infos["name"]
+        param = self.has_parameter(p_name)
+        param.update_info(parameter_infos)
+        """
 
     def on_create_FFGL(self):
         """

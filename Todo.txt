@@ -1,12 +1,22 @@
-clean c++ project creation part
-compile the project
+Remove parameter
+ - remove connection : done
+ - remove from ui
+ - remove declaration from shader text
+ - let the user remove it from the code, do a search and replace function later
 
+load parameter
+    - problem loading param name and value
+DoUNITTEST
+compile the project
+parameter range value problem
 
 add input datas info (resolution, time etc)
 
 info about the input parameters
 import texture
-create parameter
+set button to load texture
+link texture input to opengl data
+
 
 
 mat2 rotate(float angle){

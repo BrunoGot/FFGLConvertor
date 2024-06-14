@@ -40,6 +40,8 @@ class FFGL_write_window(QWidget):
                             }"""
 
         config_data = config.get_datas()
+        self.shader_file_spliter = r"////saved sliders\\\\" #used fo splitting the saved file in a shader part and a parameter part
+
 
         #list of created parameter will need to move somwhere else, make a specific parameter object and add it to an ffgl object
         self.parameters = [] #list of FFGLParameter
@@ -58,7 +60,7 @@ class FFGL_write_window(QWidget):
         save_button.clicked.connect(self.save_shader)
         menu_layout.addWidget(save_button)
         load_button = QPushButton("Load")
-        load_button.clicked.connect(self.load_shader)
+        load_button.clicked.connect(self.on_load_shader)
         menu_layout.addWidget(load_button)
         write_layout.addLayout(menu_layout)
 
@@ -112,6 +114,9 @@ class FFGL_write_window(QWidget):
         #self.setLayout(self.main_layout)
         #self.setFixedSize(500,500)
 
+    def refresh_shader(self):
+        self.opengl_widget.update()
+
     def update_shader(self):
         print("Update_shader")
         self.log_error_consol.clear()
@@ -126,9 +131,13 @@ class FFGL_write_window(QWidget):
             path = file_dialog[0]
             f = open(path,"w")
             f.write(self.shader_txt_widget.toPlainText())
+            #save the parameters
+            f.write(self.shader_file_spliter)
+            for p in self.parameters:
+                f.write(f"{p.name}\n")
             f.close()
 
-    def load_shader(self):
+    def on_load_shader(self):
         option = QFileDialog.ReadOnly
         file_dialog = QFileDialog.getOpenFileName(self, "Open Shader", "", "Shader Files (*.shd);;All Files (*)",
                                                   options=option)
@@ -136,8 +145,35 @@ class FFGL_write_window(QWidget):
         if file_dialog[0]:
             path = file_dialog[0]
             f = open(path, "r")
-            self.shader_txt_widget.setText(f.read())
+            params = self.parameters
+            for i in params:
+                self.remove_slider_handler(i.name)
+            #split shader part and parameter part
+            datas = f.read().split(self.shader_file_spliter)
+            self.load_datas(datas)
             f.close()
+
+    def load_datas(self, datas):
+        """
+        should be moved into the model part
+        todo: define a rreal save format, with a shader text part and a param description structure (json) ?
+        :param datas: [str]
+        :return:
+        """
+        shader_text = datas[0]
+        self.shader_txt_widget.setText(shader_text)
+        if len(datas) >= 2:  # there is some parameters to load
+            print(f"datas[1] = {datas[1]}")
+            parameters = datas[1].split("\n")
+            for p in parameters:
+                if p is not "":
+                    parameter_infos = {}
+                    parameter_infos["type"] = "FF_TYPE_STANDARD"
+                    parameter_infos["name"] = p
+                    parameter_infos["isShader"] = True
+                    parameter_infos["value"] = "0.5"
+                    print(f"parameter_infos = {parameter_infos}")
+                    self.create_slider_handler(parameter_infos)
 
     def on_create_slider(self):
         parameter_type = "FF_TYPE_STANDARD"
@@ -171,6 +207,21 @@ class FFGL_write_window(QWidget):
     def create_checkbox(self):
         self.parameter_settings_window.show()
 
+    def remove_slider_handler(self, p_name):
+        print("remove slider")
+        #find slider
+        ffgl_slider = None
+        for i in self.parameters:
+            print(f"i.name = {i.name}, p_name = {p_name}")
+            if i.name is p_name:
+                ffgl_slider = i
+        ffgl_slider.setParent(None)
+        parameter_code = f"uniform float {p_name};"
+        shader_code = self.shader_txt_widget.toPlainText()
+        shader_code = shader_code.replace(parameter_code, "")
+        self.shader_txt_widget.setText(shader_code)
+        self.parameters.remove(ffgl_slider)
+
     def create_slider_handler(self, parameter_infos):
         """
         create a parameter according of the data passed in argument
@@ -183,7 +234,7 @@ class FFGL_write_window(QWidget):
             success = False
             print("parameter already exist !!")
         else:
-            ffgl_slider = FFGLSlider(param_name=p_name, param_manager=self)
+            ffgl_slider = FFGLSlider(param_name=p_name, param_manager=self, remove_handler = self.remove_slider_handler)
             self.parameter_layout.addWidget(ffgl_slider)
             if ffgl_slider.is_shader:
                 self.add_shader_parameter(p_name)
@@ -201,7 +252,6 @@ class FFGL_write_window(QWidget):
                 self.parameter_layout.update()
             parameter = FFGLParameter(parameter_type, parameter_infos["IsShader"], parameter_infos["Name"], parameter_infos["Value"], len(self.parameters))
             """
-
             self.parameters.append(ffgl_slider)
         return success
         """todo: gerer les unittest et parameters input"""
@@ -220,7 +270,13 @@ class FFGL_write_window(QWidget):
         return param
 
     def add_shader_parameter(self,p_name):
-        self.shader_txt_widget.insertPlainText(f"uniform float {p_name};\n")
+        parameter_code = f"uniform float {p_name};"
+        if parameter_code not in self.shader_txt_widget.toPlainText():
+            self.shader_txt_widget.insertPlainText(f"{parameter_code}\n")
+        else:
+            print("parameter already exist in the shader code")
+        self.opengl_widget.ffgl_parameters = self.parameters
+
 
     def update_shader_parameter(self,old_p_name, new_p_name):
         """

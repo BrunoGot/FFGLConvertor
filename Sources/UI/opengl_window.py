@@ -196,10 +196,12 @@ import OpenGL.GL as gl
 
 from PySide2.QtWidgets import QApplication, QOpenGLWidget, QWidget
 from PySide2.QtGui import QSurfaceFormat
+from PIL import Image
 
 class OpenGLWindow(QOpenGLWidget):
     def __init__(self, text=None):
         super(OpenGLWindow, self).__init__()
+        self.ffgl_parameters = []
         if text:
             self.fragment_shader_source = text
             print("text = {}".format(text))
@@ -210,6 +212,34 @@ class OpenGLWindow(QOpenGLWidget):
                                 out_color = vec4(uv.x);
                             }
                         '''
+
+    def load_texture(image_path):
+        # Load the image using PIL
+        image = Image.open(image_path)
+        image = image.convert('RGB')  # Convert the image to RGB format
+        img_data = image.tobytes()
+
+        # Generate a texture ID
+        texture_id = glGenTextures(1)
+
+        # Bind the texture
+        glBindTexture(GL_TEXTURE_2D, texture_id)
+
+        # Set texture parameters
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+
+        # Upload the texture data
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.width, image.height, 0, GL_RGB, GL_UNSIGNED_BYTE, img_data)
+
+        # Generate mipmaps
+        glGenerateMipmap(GL_TEXTURE_2D)
+
+        return texture_id
+
+    texture_id = load_texture('path/to/your/texture/image.png')
 
     def initializeGL(self):
         format = QSurfaceFormat()
@@ -238,6 +268,8 @@ class OpenGLWindow(QOpenGLWidget):
             print(gl.glGetShaderInfoLog(self.vertex_shader).decode())
 
         self.load_shader()
+        #init_parameter_slot
+        #self.param_slot1 = [0.5,0.0,0.0,0.0]
         """success = gl.glGetShaderiv(self.shader_program, gl.GL_LINK_STATUS)
         if not success:
             print("shader program link failed : ")
@@ -247,6 +279,10 @@ class OpenGLWindow(QOpenGLWidget):
         gl.glClear(gl.GL_COLOR_BUFFER_BIT | gl.GL_DEPTH_BUFFER_BIT)
 
         gl.glUseProgram(self.shader_program)
+
+        for i in range(len(self.ffgl_parameters)):
+            param_slot1_loc = gl.glGetUniformLocation(self.shader_program, self.ffgl_parameters[i].name)
+            gl.glUniform1fv(param_slot1_loc,1,self.ffgl_parameters[i].value)
         gl.glBegin(gl.GL_QUADS)
         gl.glVertex2f(-1.0, -1.0)
         gl.glVertex2f(1.0, -1.0)

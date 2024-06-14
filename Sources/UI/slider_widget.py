@@ -5,7 +5,7 @@ from PySide2.QtWidgets import QHBoxLayout,QLabel, QWidget, QSlider, QToolButton
 from parameter_settings_window import ParameterSettingsWindow
 
 class FFGLSlider(QWidget):
-    def __init__(self, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None):
+    def __init__(self, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None, remove_handler=None):
         super(FFGLSlider, self).__init__(parent)
         self.name = param_name
         self.default_value = param_value
@@ -38,10 +38,17 @@ class FFGLSlider(QWidget):
         remove_btn = QToolButton()
         remove_btn.setIcon(QIcon("Icons/remove_icon.png"))
         remove_btn.setFixedSize(icon_size, icon_size)
+        remove_btn.clicked.connect(lambda b = True, name= self.name : remove_handler(name))
         main_layout.addWidget(remove_btn)
 
+    @property
+    def value(self):
+        return self.slider.value()/100
+
     def on_slider_change(self,value):
-        self.widget_name.setText(f"{self.name} : {value}")
+        self.widget_name.setText(f"{self.name} : {self.value}")
+        if self.is_shader:
+            self.param_manager.refresh_shader()
         #self.widget_name.update()
 
     def on_pref_button(self):

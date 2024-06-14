@@ -2,8 +2,9 @@ import os
 import unittest
 
 from Core import config_manager as cm
-from manager import Manager
 from Core.ffgl_parameter import FFGLParameter
+from manager import Manager
+from UI.main_window import FFGL_write_window
 
 class MyTestCase(unittest.TestCase):
     def test_simple_FFGL_one_parameter(self):
@@ -33,7 +34,7 @@ class MyTestCase(unittest.TestCase):
         p2 = FFGLParameter("FF_TYPE_STANDARD", True, "ptest2", "1.0", 1)
         parameters = [p,p2]
         self.ffgl_manager.CreateFFGL("2", "FX", parameters, "test1",
-                                     "test", "TestName", shader_code="")
+                                     "test", "TestName", shader_code="",pluginId="132e")
 
     def test_simple_FFGL_no_parameter(self):
         #self.assertEqual(True, False)
@@ -41,7 +42,7 @@ class MyTestCase(unittest.TestCase):
         self.ffgl_manager = Manager(config_datas)
         parameters = []
         self.ffgl_manager.CreateFFGL("2", "FX", parameters, "test1",
-                                     "test", "MirrorStripes")
+                                     "test", "MirrorStripes", shader_code="",pluginId="132e")
 
     def test_simple_FFGL_export(self):
         """
@@ -58,5 +59,14 @@ class MyTestCase(unittest.TestCase):
         self.ffgl_manager.export_ffgl(ffgl_name)
         self.assertTrue(os.path.isfile(cpp_path_project))
 
+
+    # def test_loading_parameter(self):
+    #     ffgl_win = FFGL_write_window()
+    #     path = "D:\Documents\Code\Python\FFGLConvertor\Sources\TestShaders\TestParam1.shd"
+    #     f = open(path, "r")
+    #     datas = f.read().split(self.shader_file_spliter)
+    #     ffgl_win.load_datas(datas)
+    #     print(ffgl_win.parameters)
+    #     f.close()
 if __name__ == '__main__':
     unittest.main()

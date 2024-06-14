@@ -1,0 +1,92 @@
+/*todo:alpha, +deformation ?*/
+
+
+mat2 rotate(float angle){
+    return mat2(cos(angle),sin(-angle),sin(angle),cos(angle));
+
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    //parameters
+    //Deformation intensity
+    //deformationMode ADD/Mult
+    //Apply pattern : Add/Sub/Divide/Mult/None
+    //pattern intensity
+    //TextureRot1 /ease no movement->movement
+    //TextureRot2
+    //ratio Texture/pattern
+    //alpha : one block on two
+    //alpha : one row on two
+
+    vec2 mouse = iMouse.xy/iResolution.xy;
+    float lineFreq = 0.15;
+    float globalSize = 0.25;
+    float circleFreq = 0.5;
+
+    float distortFreq = 0.5;//mouse.x;
+    float distortInt = 0.84;
+    float distortWidth = 0.4;//mouse.x;
+
+    float smoothLines1 = 0.0;//mouse.x*1.0;
+    float smoothLines2 = smoothLines1;
+    float smoothLinesV = 0.2;//mouse.y*2.0;
+    float circleOffset1 = 0.0;//mouse.x;
+    float circleOffset2 = 0.0;//mouse.x;
+    float patternDistort = 0.850;//mouse.x;
+    //float mixOut = mouse.y;
+    float mixTextBlack = mouse.y;
+    float mixTextWhite = 0.0;//mouse.x;
+    float circleOffset = mouse.x;
+    float time3 = 0.0;
+    float time = iTime;
+    float time2 = 0.5;
+    float but1 = 0.0;
+    float alphaMode = 0.0;
+
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 p = fragCoord/iResolution.xy;
+    vec2 uv_tex = p;
+    p -= 0.5;
+
+
+
+
+   //p.x *= iResolution.x / iResolution.y;
+   p *= 5.0*(globalSize+0.1); //check global size
+
+   //angle and distort
+   float a = atan(p.x, p.y) + (distortInt*2.0-1.0)*2.0*smoothstep(-2.0, distortWidth*4.0-2.0, sin(length(p*5.0)*20.0*pow(distortFreq, 4.0) + time2*15.0));
+
+   float size = mix( floor((lineFreq + 0.1)*20.0), (lineFreq + 0.1)*20.0, but1);
+
+   //lines
+   float lines1 = smoothstep(0.0 - smoothLines1, 0.0 + smoothLines1, sin(a*size + time + circleOffset1*3.1415*2.0));
+   float lines2 = smoothstep(0.0 - smoothLines2, 0.0 + smoothLines2, sin(-a*size + time + circleOffset2*3.1415*2.0));
+   //circles
+   float circle = smoothstep(0.0 - smoothLinesV, 0.0 + smoothLinesV, sin(length(p)*3.1415*(circleOffset+circleFreq+time3)*4.0));
+   //combine lines and circles
+   float color = mix(lines1, lines2, circle);
+
+    vec4 pattern = vec4(vec3(color), mix(1.0, color, alphaMode));
+
+    //rotate texture
+    mat2 rot1 = rotate((time+circleOffset2*2.0*3.1415)/size);
+    vec2 uv_tex1 = uv_tex-0.5;
+    uv_tex1 *= rot1;
+    uv_tex1 += 0.5;
+
+
+    mat2 rot2 = rotate(-((time+circleOffset1*2.0*3.1415)/size));
+    vec2 uv_tex2 = uv_tex-0.5;
+    uv_tex2*=rot2;
+    uv_tex2+=0.5;
+    //vec4 tex1 = texture(iChannel0,mix(uv_tex2,uv_tex1,circle)+pattern.x*0.5);
+    vec4 tex1 = texture(iChannel0,mix(uv_tex2,uv_tex1,circle)*(1.0+pattern.x*0.5*patternDistort)-0.25*patternDistort);
+    vec4 texOut = tex1-(1.0-pattern)*mixTextBlack;
+    float lines = smoothstep(0.0,0.7,sin(length(p+texOut.r*0.05)*6.25*1.0+time+texOut.r*0.1*2.0));
+    vec4 colOut = texOut+pattern*mixTextWhite*lines;
+    fragColor = colOut;//vec4(pattern); // tex1;//*pattern;
+
+
+}////saved sliders\\\\

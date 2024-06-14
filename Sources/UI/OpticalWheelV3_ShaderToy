@@ -1,0 +1,103 @@
+
+mat2 rotate(float angle){
+    return mat2(cos(angle),sin(-angle),sin(angle),cos(angle));
+
+}
+
+float lines(float x, float time, float offset, float freq, float softness)
+{
+    float s =  sin(x*freq + time + offset*3.1415*2.0);
+    return smoothstep(0.0 - softness, 0.0 + softness,s);
+}
+
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
+{
+    //parameters
+    //Deformation intensity
+    //deformationMode ADD/Mult
+    //Apply pattern : Add/Sub/Divide/Mult/None
+    //pattern intensity
+    //TextureRot1 /ease no movement->movement
+    //TextureRot2
+    //ratio Texture/pattern
+    //alpha : one block on two
+    //alpha : one row on two
+
+    vec2 mouse = iMouse.xy/iResolution.xy;
+
+    float size = 0.5;
+    float vortexFreq = 0.5;//mouse.x;
+    float offsetCircles1 = 0.0;
+    float offsetCircles2 = 0.0;
+    float linesSoft = 0.0;
+    float circlesSoft = 0.0;
+    float distortSoft = mouse.y;
+    float circletime = 0.0;
+
+    //buttons and time
+    float time = iTime;
+    float time2 = 0.5; //vortexSpeed
+    float but1 = 0.0;
+    float alphaMode = 0.0;
+
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 p = fragCoord/iResolution.xy;
+    vec2 uv_tex = p;
+    p -= 0.5;
+
+
+
+
+   //p.x *= iResolution.x / iResolution.y;
+   p *= 5.0*(size+0.1); //check global size
+
+   //angle and distort
+   float distortions = sin(length(p*5.0)*20.0*pow(vortexFreq, 4.0) + time2*15.0);
+   distortions = smoothstep(-1.0, distortSoft*2.75-0.75, distortions);
+   float a = atan(p.x, p.y) + distortions;
+
+   float globalSize = (size + 0.1)*20.0;
+   globalSize = mix( floor(globalSize), globalSize, but1);
+
+   //lines
+   float lines1 = lines(a, time, offsetCircles1,globalSize, linesSoft);
+   float lines2 = lines(-a, time, offsetCircles1,globalSize, linesSoft);
+   //circles
+   float circle = lines(length(p),circletime,0.0,3.1415*5.0,circlesSoft);//smoothstep(0.0 - circlesSoft, 0.0 + circlesSoft, sin(length(p)*3.1415*5.0));
+   //combine lines and circles
+   float color = mix(lines1, lines2, circle);
+
+    vec4 pattern = vec4(vec3(color), mix(1.0, color, alphaMode));
+
+
+    /*
+
+    //vec4 tex1 = texture(iChannel0,mix(uv_tex2,uv_tex1,circle)+pattern.x*0.5);
+    vec4 tex1 = texture(iChannel0,mix(uv_tex2,uv_tex1,circle)*(1.0+pattern.x*0.5*patternDistort)-0.25*patternDistort);
+    vec4 texOut = tex1-(1.0-pattern)*mixTextBlack;
+    float lines = smoothstep(0.0,0.7,sin(length(p+texOut.r*0.05)*6.25*1.0+time+texOut.r*0.1*2.0));
+    vec4 colOut = texOut+pattern*mixTextWhite*lines;
+    */
+
+
+    //rotate texture
+    mat2 rot1 = rotate((time*0.15+offsetCircles1*2.0*3.1415)/size);
+    vec2 uv_tex1 = uv_tex-0.5;
+    uv_tex1 *= rot1;
+    uv_tex1 += 0.5;
+    mat2 rot2 = rotate(-((time*0.15+offsetCircles2*2.0*3.1415)/size));
+    vec2 uv_tex2 = uv_tex-0.5;
+    uv_tex2*=rot2;
+    uv_tex2+=0.5;
+    ///
+
+
+
+    vec4 tex1 = texture(iChannel0,mix(uv_tex2,uv_tex1,circle)+pattern.x*0.01)*pattern.x;
+
+    //vec4(distortions*pattern.x); makes a cool 3d fx
+    float s = mix(distortions,pattern.x,step(0.,p.x));
+   fragColor = vec4(tex1); // tex1;//*pattern;
+
+
+}

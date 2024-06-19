@@ -20,7 +20,7 @@ class FFGLWriter():
         index = 0
         for param in self.list_params:
             index+=1
-            print("param %s" %index+" = " +param.m_sParamName+" - "+param.m_sTypeParam + " - "+param.m_sParamValue + " - is shader param = "+str(param.m_bIsShader) + " - VariableName = "+param.m_sVarName)
+            # print("param %s" %index+" = " +param.m_sParamName+" - "+param.m_sTypeParam + " - "+param.m_sParamValue + " - is shader param = "+str(param.m_bIsShader) + " - VariableName = "+param.m_sVarName)
         
         self.m_PluginInfo = _pluginInfo
         print("Plugin info className = "+self.m_PluginInfo.m_sClassName)

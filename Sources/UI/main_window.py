@@ -2,13 +2,12 @@ from PySide2 import QtWidgets
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QFileDialog, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, \
-    QTextEdit,QToolButton
+    QTextEdit,QToolButton, QScrollArea
 
 from opengl_window import OpenGLWindow
 from parameter_settings_window import ParameterSettingsWindow
 from FFGL_creator_ui import FFGLCreatorUI
 from manager import Manager
-from Core.ffgl_parameter import FFGLParameter
 from Core import config_manager as config
 from slider_widget import FFGLSlider
 
@@ -64,9 +63,8 @@ class FFGL_write_window(QWidget):
         menu_layout.addWidget(load_button)
         write_layout.addLayout(menu_layout)
 
-        #opengl Layout
-        self.opengl_layout = QVBoxLayout()
-
+        # ffgl parameter layout
+        self.parameter_layout = QVBoxLayout()
         self.parameter_menu_layout = QHBoxLayout()
         self.create_slider_btn = QPushButton("Create Slider")
         self.create_slider_btn.clicked.connect(self.on_create_slider)
@@ -74,11 +72,21 @@ class FFGL_write_window(QWidget):
         self.create_checkbox_btn = QPushButton("Create Checkbox")
         self.create_checkbox_btn.clicked.connect(self.create_checkbox)
         self.parameter_menu_layout.addWidget(self.create_checkbox_btn)
-        self.opengl_layout.addLayout(self.parameter_menu_layout)
-        #dynamic parameter section
-        self.parameter_layout = QVBoxLayout()
-        self.opengl_layout.addLayout(self.parameter_layout)
+        self.parameter_layout.addLayout(self.parameter_menu_layout)
 
+        #dynamic parameter section
+        widget_param_container = QWidget()
+
+        self.vlayout_param_container = QVBoxLayout()
+        widget_param_container.setLayout(self.vlayout_param_container)
+        scroll_bar = QScrollArea()
+        scroll_bar.setWidgetResizable(True)
+        scroll_bar.setMinimumSize(350,300)
+        scroll_bar.setWidget(widget_param_container)
+        self.parameter_layout.addWidget(scroll_bar)
+
+        # opengl Layout
+        self.opengl_layout = QVBoxLayout()
         self.opengl_widget = OpenGLWindow(shader_base_text)
         self.opengl_widget.setFixedSize(300, 300)
         self.opengl_layout.addWidget(self.opengl_widget)
@@ -93,6 +101,7 @@ class FFGL_write_window(QWidget):
         glsl_dev_module_layout = QHBoxLayout()
         glsl_dev_module_layout.addLayout(write_layout)
         glsl_dev_module_layout.addLayout(self.opengl_layout)
+        glsl_dev_module_layout.addLayout(self.parameter_layout)
         main_ffgl_layout.addLayout(glsl_dev_module_layout)
         self.ffgl_creator_module = FFGLCreatorUI()
         main_ffgl_layout.addWidget(self.ffgl_creator_module)
@@ -167,6 +176,7 @@ class FFGL_write_window(QWidget):
             parameters = datas[1].split("\n")
             for p in parameters:
                 if p is not "":
+                    # todo: put that in a function and share it in 'parameter_settings_windows.on_create'
                     parameter_infos = {}
                     parameter_infos["type"] = "FF_TYPE_STANDARD"
                     parameter_infos["name"] = p
@@ -230,12 +240,14 @@ class FFGL_write_window(QWidget):
         """
         success = True
         p_name = parameter_infos["name"]
+        default_value = parameter_infos["value"]
         if self.has_parameter(p_name):
             success = False
             print("parameter already exist !!")
         else:
-            ffgl_slider = FFGLSlider(param_name=p_name, param_manager=self, remove_handler = self.remove_slider_handler)
-            self.parameter_layout.addWidget(ffgl_slider)
+            ffgl_slider = FFGLSlider(index = len(self.parameters), param_name=p_name, param_value=default_value,
+                                     param_manager=self, remove_handler = self.remove_slider_handler)
+            self.vlayout_param_container.addWidget(ffgl_slider)
             if ffgl_slider.is_shader:
                 self.add_shader_parameter(p_name)
             """print("create_parameter_handler")

@@ -1,0 +1,141 @@
+uniform float time;
+uniform float iTime;
+uniform sampler2D texture1;
+
+uniform float Size;
+uniform float VortexFreq;
+uniform float VortexWidth;
+uniform float VortexShadow;
+uniform float ShadowMode;
+uniform float VortexOffset;
+uniform float OffsetCircles1;
+uniform float OffsetCircles2;
+uniform float LinesSoft;
+uniform float CirclesSoft;
+uniform float Circletime;
+uniform float BlackToWhiteText;
+uniform float TextureInput;
+uniform float DistortX;
+uniform float DistortY;
+uniform float DistortStyle;
+
+
+
+vec2 rotateTexture(vec2 uv, float angle){
+    float a = angle*3.1415*2.0;
+    mat2 rot =  mat2(cos(a),sin(-a),sin(a),cos(a));
+    vec2 uv_tex = uv-0.5;
+    uv_tex*=rot;
+    uv_tex+=0.5;
+    return uv_tex;
+}
+
+float lines(float x, float time, float offset, float freq, float softness)
+{
+    float s =  sin(x*freq + time*3.1415 + offset*3.1415*2.0*freq);
+    return smoothstep(0.0 - softness, 0.0 + softness,s);
+}
+
+void main( )
+{
+    //parameters
+    //Deformation intensity
+    //deformationMode ADD/Mult
+    //Apply pattern : Add/Sub/Divide/Mult/None
+    //pattern intensity
+    //TextureRot1 /ease no movement->movement
+    //TextureRot2
+    //ratio Texture/pattern
+    //alpha : one block on two
+    //alpha : one row on two
+
+
+;
+
+    float size = Size;
+    float vortexFreq = VortexFreq;//mouse.x;
+    float distortSoft = VortexWidth;
+    float distShadow = VortexShadow;
+    float shadowMode = ShadowMode;
+    float time2 =VortexOffset; //vortexSpeed
+
+    float offsetCircles1 = OffsetCircles1;
+    float offsetCircles2 =OffsetCircles2;
+    float linesSoft = LinesSoft*2.0;
+    float circlesSoft = CirclesSoft*2.0;
+    float circletime = Circletime*2.0;
+
+    float blackToWhiteText = BlackToWhiteText;
+    float textureInput = TextureInput;
+    float distX = DistortX;
+    float distY = DistortY;
+    float distortStyle = DistortStyle;
+    //buttons and time
+    //float time = iTime;
+    float Time = time*2.0;
+    float but1 = 0.0;
+    float alphaMode = 0.0;
+
+    // Normalized pixel coordinates (from 0 to 1)
+    vec2 p = uv;
+    vec2 uv_tex = p;
+    p -= 0.5;
+
+   //p.x *= iResolution.x / iResolution.y;
+   p *= 5.0*(size+0.1); //check global size
+
+   //angle and distort
+   float distortions = sin(length(p*5.0)*20.0*pow(vortexFreq, 4.0) + time2*15.0);
+   distortions = smoothstep(-1.0, distortSoft*2.75-0.75, distortions);
+   float a = atan(p.x, p.y) + distortions;
+
+   float globalSize = (size + 0.1)*20.0;
+   globalSize = mix( floor(globalSize), globalSize, but1);
+
+   //lines
+   float lines1 = lines(a, Time, offsetCircles1,globalSize, linesSoft);
+   float lines2 = lines(-a, Time, offsetCircles2,globalSize, linesSoft);
+   //circles
+   float circle = lines(length(p),circletime,0.0,3.1415*5.0,circlesSoft);//smoothstep(0.0 - circlesSoft, 0.0 + circlesSoft, sin(length(p)*3.1415*5.0));
+   //combine lines and circles
+   float color = mix(lines1, lines2, circle);
+
+    vec4 pattern = vec4(vec3(color), mix(1.0, color, alphaMode));
+
+    //rotate texture
+    vec2 uv_tex1 = rotateTexture(uv_tex, Time/globalSize-offsetCircles1);
+    vec2 uv_tex2 = rotateTexture(uv_tex,-Time/globalSize+offsetCircles2);
+    
+    ///
+   vec2 uvDistort = vec2(distX,distY)*(pattern.x*0.5+distortions);
+   vec4 textureCol1 =  texture(texture1,mix(uv_tex1+uvDistort,uv_tex2-uvDistort,mix(pattern.x, circle,distortStyle)));
+   vec4 textureCol =  texture(texture1,mix(uv_tex1+uvDistort,uv_tex2-uvDistort,mix(pattern.x, circle,distortStyle)));
+    vec4 blackNTexture =textureCol*pattern.x;
+    vec4 WhiteNTexture = textureCol+pattern.x;
+    vec4 SimpleTextureDeform =textureCol;
+    
+    //vec4(distortions*pattern.x); makes a cool 3d fx
+    //float s = mix(distortions,pattern.x,step(0.,p.x));
+   vec4 blackToWhiteTextOut = mix(blackNTexture,WhiteNTexture,blackToWhiteText);
+   vec4 distortionShadow = vec4(mix(distortions,1.0-distortions,shadowMode)*distShadow);
+   out_color = vec4(mix(pattern,mix(blackToWhiteTextOut, textureCol,clamp(textureInput*2.0-1.0,0.0,1.0) ),clamp(textureInput*2.0,0.0,1.0)))*(1.0-distortionShadow); // tex1;//*pattern;
+
+
+
+}////saved sliders\\\\time
+Size
+VortexFreq
+VortexWidth
+VortexShadow
+ShadowMode
+VortexOffset
+OffsetCircles1
+OffsetCircles2
+LinesSoft
+CirclesSoft
+Circletime
+BlackToWhiteText
+TextureInput
+DistortX
+DistortY
+DistortStyle

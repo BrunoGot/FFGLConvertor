@@ -3,16 +3,17 @@ from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QHBoxLayout,QLabel, QWidget, QSlider, QToolButton
 
 from parameter_settings_window import ParameterSettingsWindow
+from Core.ffgl_parameter import FFGLParameter
 
 class FFGLSlider(QWidget):
-    def __init__(self, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None, remove_handler=None):
+    def __init__(self, index, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None, remove_handler=None):
         super(FFGLSlider, self).__init__(parent)
         self.name = param_name
         self.default_value = param_value
         self.is_shader = is_shader
         self.param_manager = param_manager
         self.param_settings_window = ParameterSettingsWindow(mode_title="Update",action_callback=self.update_slider)
-
+        #add ffgl_parameter class as model part of the ffglSliderView
         icon_size = 30
         #pref button
         main_layout = QHBoxLayout()
@@ -28,7 +29,7 @@ class FFGLSlider(QWidget):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(0)
         self.slider.setMaximum(100)
-        self.slider.setValue(self.default_value)
+        self.slider.setValue(float(self.default_value))
         self.slider.setFixedWidth(150)
         self.slider.valueChanged.connect(self.on_slider_change)
         main_layout.addWidget(self.slider)
@@ -40,6 +41,10 @@ class FFGLSlider(QWidget):
         remove_btn.setFixedSize(icon_size, icon_size)
         remove_btn.clicked.connect(lambda b = True, name= self.name : remove_handler(name))
         main_layout.addWidget(remove_btn)
+
+        #todo : refectorr this class into a FFGLSlider that contain a QSlider and a FFGLPArameter (View/Model)
+        self.ffgl_parameter = FFGLParameter("FF_TYPE_STANDARD", self.is_shader, self.name,
+                                  self.default_value, index)
 
     @property
     def value(self):

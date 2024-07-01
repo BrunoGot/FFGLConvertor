@@ -16,12 +16,7 @@ class FFGLWriter():
         :param list_params: list [FFGLParameter]
         :param _pluginInfo: FFGLInformation
         """
-        self.list_params = list_params
-        index = 0
-        for param in self.list_params:
-            index+=1
-            # print("param %s" %index+" = " +param.m_sParamName+" - "+param.m_sTypeParam + " - "+param.m_sParamValue + " - is shader param = "+str(param.m_bIsShader) + " - VariableName = "+param.m_sVarName)
-        
+        self.list_params = [p.ffgl_parameter for p in list_params] #getting only ffgl parameters, not ui
         self.m_PluginInfo = _pluginInfo
         print("Plugin info className = "+self.m_PluginInfo.m_sClassName)
 
@@ -149,7 +144,7 @@ class FFGL20Writer(FFGLWriter):
 
             if "/*###DefineSection###*/" in line:
                 for p in self.list_params:
-                    newCode+=f"#define {p.ffgl_param_index} ({p.index})\n"
+                    newCode += f"#define {p.ffgl_param_index} ({p.index})\n"
             #todo : make a structure for PluginInfo with it's name, id, version etc.... it will be easier and cleaner to conver it.
             
             if "/*###FFGLInfoSection###*/" in line :
@@ -182,7 +177,7 @@ class FFGL20Writer(FFGLWriter):
                     newParam = param.m_sVarName #.replace('"','')
                     #param ="write :" +self.list_params[i].m_sParamName+" - "+self.list_params[i].m_sTypeParam
                     #print(param)
-                    newCode += "\t"+newParam+"("+param.m_sParamValue+" ),\n" #write parameters initialisation like m_param1(0.5)
+                    newCode += f"\t{newParam}({param.m_sParamValue} ),\n" #write parameters initialisation like m_param1(0.5)
                     self.m_dicoVar[newParam] = "float"
             if "/*###AddParameterSection###*/" in line:
                 newCode+="\t//Add the params here \n"

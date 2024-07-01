@@ -17,6 +17,9 @@ class ParameterSettingsWindow(QtWidgets.QWidget):
         param_input_layout.addWidget(QLabel("name : "))
         self.param_name_widget = QLineEdit()
         param_input_layout.addWidget(self.param_name_widget)
+        param_input_layout.addWidget(QLabel("Default Value"))
+        self.param_default_val_widget = QLineEdit()
+        param_input_layout.addWidget(self.param_default_val_widget)
         param_input_layout.addWidget(QLabel("shader linked : "))
         self.is_shader_widget = QCheckBox()
         self.is_shader_widget.setChecked(True)
@@ -49,11 +52,12 @@ class ParameterSettingsWindow(QtWidgets.QWidget):
 
     def on_create(self):
         param_name = self.param_name_widget.text()
+        #todo: put that in a function and share it in 'FFGL_Write_Windows.load datas'
         parameter_infos = {}
         parameter_infos["type"] = "FF_TYPE_STANDARD"
         parameter_infos["name"] = param_name
         parameter_infos["isShader"] = self.is_shader_widget.isChecked()
-        parameter_infos["value"] = "0.5"
+        parameter_infos["value"] = self.param_default_val_widget.text()
         success = self.action_callback(parameter_infos)
         if not success: #self.manager.has_parameter(param_name):
             print("parameter already exist !")

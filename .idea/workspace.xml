@@ -24,9 +24,8 @@
   <component name="ChangeListManager">
     <list default="true" id="582e2c5c-faf9-48d1-858f-89721bd16b51" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/FFGLWriter.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/FFGLWriter.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Sources/TestShaders/TestParam1.shd" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/TestShaders/TestParam1.shd" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/UI/main_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/main_window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/parameter_settings_window.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Sources/UI/slider_widget.py" beforeDir="false" afterPath="$PROJECT_DIR$/Sources/UI/slider_widget.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

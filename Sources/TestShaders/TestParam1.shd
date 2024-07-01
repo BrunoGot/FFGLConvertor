@@ -1,5 +1,6 @@
-uniform float TestParam;
+uniform float test;
+
 void main()
                             {
-                                out_color = vec4(uv.x+TestParam);
-                            }////saved sliders\\\\TestParam
+                                out_color = vec4(uv.x);
+                            }////saved sliders\\\\test, 20

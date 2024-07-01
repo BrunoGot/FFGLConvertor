@@ -29,9 +29,9 @@ class FFGLSlider(QWidget):
         self.slider = QSlider(Qt.Horizontal)
         self.slider.setMinimum(0)
         self.slider.setMaximum(100)
-        self.slider.setValue(float(self.default_value))
         self.slider.setFixedWidth(150)
         self.slider.valueChanged.connect(self.on_slider_change)
+        self.slider.setValue(float(self.default_value))
         main_layout.addWidget(self.slider)
         self.setLayout(main_layout)
 
@@ -60,15 +60,24 @@ class FFGLSlider(QWidget):
         self.param_settings_window.show()
 
     def update_slider(self, parameter_infos):
+        print(f"current name = {self.name}")
         print("new name = "+parameter_infos["name"])
         name = parameter_infos["name"]
         success = True
-        if self.param_manager.has_parameter(name):
+        if (name != self.name) and self.param_manager.has_parameter(name):
             print("name already exist")
             success = False
         else :
             self.param_manager.update_shader_parameter(old_p_name=self.name,new_p_name=name)
             self.name = name
             self.is_shader = parameter_infos["isShader"]
+            self.default_value = parameter_infos["value"]
             self.widget_name.setText(f"{self.name} : {self.default_value}")
         return success
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.RightButton:
+            print("reset value")
+            self.slider.setValue(float(self.default_value))
+        else:
+            super().mousePressEvent()

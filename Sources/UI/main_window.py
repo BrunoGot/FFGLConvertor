@@ -143,7 +143,7 @@ class FFGL_write_window(QWidget):
             #save the parameters
             f.write(self.shader_file_spliter)
             for p in self.parameters:
-                f.write(f"{p.name}\n")
+                f.write(f"{p.name}, {p.default_value}\n")
             f.close()
 
     def on_load_shader(self):
@@ -176,12 +176,17 @@ class FFGL_write_window(QWidget):
             parameters = datas[1].split("\n")
             for p in parameters:
                 if p is not "":
+                    param_datas = p.split(",")
                     # todo: put that in a function and share it in 'parameter_settings_windows.on_create'
                     parameter_infos = {}
                     parameter_infos["type"] = "FF_TYPE_STANDARD"
-                    parameter_infos["name"] = p
+                    parameter_infos["name"] = param_datas[0]
                     parameter_infos["isShader"] = True
-                    parameter_infos["value"] = "0.5"
+                    try:
+                        parameter_infos["value"] = param_datas[1]
+                    except Exception as e:
+                        parameter_infos["value"] = 0.5
+                        print(f"error occured when reading param : p. {e}")
                     print(f"parameter_infos = {parameter_infos}")
                     self.create_slider_handler(parameter_infos)
 

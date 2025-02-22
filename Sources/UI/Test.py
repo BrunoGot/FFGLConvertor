@@ -18,10 +18,11 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.gl_widget = OpenGLWindow()
-
+        self.gl_widget.setMinimumWidth(540)
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
         layout = QVBoxLayout(central_widget)
+
         layout.addWidget(self.gl_widget)
 
 if __name__ == '__main__':

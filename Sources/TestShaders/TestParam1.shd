@@ -1,6 +1,9 @@
-uniform float test;
-
+uniform float A;
+uniform float B;
+uniform float C;
 void main()
                             {
                                 out_color = vec4(uv.x);
-                            }////saved sliders\\\\test, 20
+                            }////saved sliders\\\\A, 50
+B, 50
+C, 50

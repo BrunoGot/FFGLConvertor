@@ -346,5 +346,6 @@ class OpenGLWindow(QOpenGLWidget):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = OpenGLWindow()
+    # window.setMinimumWidth(1280)
     window.show()
     sys.exit(app.exec_())

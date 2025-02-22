@@ -108,8 +108,8 @@ class FFGL20Writer(FFGLWriter):
                 
             if "/*###CustomFunctions###*/" in line : #write custom function under this line
                 newCode.append("\n") #jump a line !
-                for f in self.m_tabFunction:
-                    newCode.append("\t"+f+";\n")      
+                for t in self.m_tabFunction:
+                    newCode.append("\t"+t+";\n")
         f.close()
         return newCode
         

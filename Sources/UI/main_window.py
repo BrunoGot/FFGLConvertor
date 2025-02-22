@@ -88,7 +88,7 @@ class FFGL_write_window(QWidget):
         # opengl Layout
         self.opengl_layout = QVBoxLayout()
         self.opengl_widget = OpenGLWindow(shader_base_text)
-        self.opengl_widget.setFixedSize(300, 300)
+        self.opengl_widget.setFixedSize(533, 300)
         self.opengl_layout.addWidget(self.opengl_widget)
         self.log_error_consol = QTextEdit()
         self.opengl_layout.addWidget(QLabel("log error : "))
@@ -175,7 +175,7 @@ class FFGL_write_window(QWidget):
             print(f"datas[1] = {datas[1]}")
             parameters = datas[1].split("\n")
             for p in parameters:
-                if p is not "":
+                if p != "":
                     param_datas = p.split(",")
                     # todo: put that in a function and share it in 'parameter_settings_windows.on_create'
                     parameter_infos = {}
@@ -222,20 +222,89 @@ class FFGL_write_window(QWidget):
     def create_checkbox(self):
         self.parameter_settings_window.show()
 
-    def remove_slider_handler(self, p_name):
-        print("remove slider")
-        #find slider
+    def get_parameter_by_name(self, p_name):
+        """
+        return the parameter according to the given name
+        :param p_name:
+        :return:
+        """
         ffgl_slider = None
         for i in self.parameters:
-            print(f"i.name = {i.name}, p_name = {p_name}")
+            # print(f"i.name = {i.name}, p_name = {p_name}")
             if i.name is p_name:
                 ffgl_slider = i
+                break
+
+        return ffgl_slider
+
+    def remove_slider_handler(self, p_name):
+        print(f"remove slider {p_name}")
+        #find slider
+        ffgl_slider = self.get_parameter_by_name(p_name)
         ffgl_slider.setParent(None)
+        self.parameters.remove(ffgl_slider)
+        print(f"self.parameters 1= {self.parameters}")
+        print(f"ffgl_slider = {ffgl_slider }")
+
+        print(f"self.parameters 2= {self.parameters}")
+
         parameter_code = f"uniform float {p_name};"
         shader_code = self.shader_txt_widget.toPlainText()
         shader_code = shader_code.replace(parameter_code, "")
         self.shader_txt_widget.setText(shader_code)
-        self.parameters.remove(ffgl_slider)
+        print(f"self.parameters = {self.parameters}")
+
+    def on_update_slider_order(self, n_index, o_index):
+        """
+        call back called by the SliderWidget when update the order
+        :param slider:
+        :return:
+        """
+        new_index = int(n_index)-1 #convert to param index
+        old_index = int(o_index)-1
+        slider = self.parameters[old_index]
+        print(f"new index = {new_index}")
+        print(f"old index = {old_index}")
+        # if new_index > old_index:
+            # p.index-=1 if p.index > old_index <= new_index
+        #elif new_index < old_index:
+            # p.index +=1 if p.index >= new_index < old_index
+        #take the actual old index, shift it and all the rest by one, apply the new index, reorder the array
+        old_array = [i.index for i in self.parameters]
+        print(f"old array = {old_array}")
+        for i in self.parameters:
+            if new_index > old_index:
+                if i.index > old_index and i.index <= new_index:
+                    print("decrement index above the old index. set index-1")
+                    i.set_index(i.index-1)
+            elif new_index < old_index:
+                if i.index >= new_index and i.index < old_index:
+                    print("increment index under the old index set index+1")
+                    i.set_index(i.index+1)
+        slider.set_index(new_index)
+        new_array = [i.index for i in self.parameters]
+        print(f"new array = {new_array}")
+        self.update_parameter_ui()
+        # # self.update_parameter_order(old_index, new_index)
+        # print(f"new_index = {new_index}")
+
+    def update_parameter_ui(self):
+        params = [i for i in self.parameters]
+        for i in params:
+            self.vlayout_param_container.removeWidget(i)
+                        # self.remove_slider_handler(i.name)
+        print(f"original params = {params}")
+        params.sort(key=lambda x : x.index)
+        self.parameters = params
+        print(f"sorted_params = {params}")
+        for i in params:
+            self.vlayout_param_container.addWidget(i)
+
+
+
+    """def update_parameter_order(self, old_index, new_index):
+        self.parameters
+        buffer = self"""
 
     def create_slider_handler(self, parameter_infos):
         """
@@ -251,7 +320,7 @@ class FFGL_write_window(QWidget):
             print("parameter already exist !!")
         else:
             ffgl_slider = FFGLSlider(index = len(self.parameters), param_name=p_name, param_value=default_value,
-                                     param_manager=self, remove_handler = self.remove_slider_handler)
+                                     param_manager=self, remove_handler = self.remove_slider_handler, update_order_handler = self.on_update_slider_order)
             self.vlayout_param_container.addWidget(ffgl_slider)
             if ffgl_slider.is_shader:
                 self.add_shader_parameter(p_name)
@@ -279,6 +348,7 @@ class FFGL_write_window(QWidget):
         :param str p_name:
         :return FFGLSlider param: return the parameter if the parameter exist or None otherwise
         """
+        print(f"has parameter in {len(self.parameters)}")
         param = None
         for p in self.parameters:
             if p.name == p_name:

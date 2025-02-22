@@ -1,19 +1,22 @@
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QHBoxLayout,QLabel, QWidget, QSlider, QToolButton
+from PySide2.QtWidgets import QHBoxLayout,QLabel, QWidget, QSlider, QToolButton, QLineEdit
 
 from parameter_settings_window import ParameterSettingsWindow
 from Core.ffgl_parameter import FFGLParameter
 
 class FFGLSlider(QWidget):
-    def __init__(self, index, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None, remove_handler=None):
+    def __init__(self, index, param_name = "", param_value=0.5, is_shader=True, param_manager=None, parent = None, remove_handler=None, update_order_handler=None):
         super(FFGLSlider, self).__init__(parent)
         self.name = param_name
         self.default_value = param_value
         self.is_shader = is_shader
         self.param_manager = param_manager
         self.param_settings_window = ParameterSettingsWindow(mode_title="Update",action_callback=self.update_slider)
-        #add ffgl_parameter class as model part of the ffglSliderView
+        # todo : refectorrthis class into a FFGLSlider that contain a QSlider and a FFGLPArameter (View/Model)
+        self.ffgl_parameter = FFGLParameter("FF_TYPE_STANDARD", self.is_shader, self.name,
+                                            self.default_value, index)
+
         icon_size = 30
         #pref button
         main_layout = QHBoxLayout()
@@ -24,6 +27,10 @@ class FFGLSlider(QWidget):
         main_layout.addWidget(pref_button)
 
         #slider
+        self.order_widget = QLineEdit(str(index+1))
+        self.order_widget.setMaximumWidth(40)
+        self.order_widget.returnPressed.connect(lambda: update_order_handler(self.order_widget.text(), self.index+1))
+        main_layout.addWidget(self.order_widget)
         self.widget_name = QLabel(f"{self.name} : {self.default_value}")
         main_layout.addWidget(self.widget_name)
         self.slider = QSlider(Qt.Horizontal)
@@ -42,9 +49,19 @@ class FFGLSlider(QWidget):
         remove_btn.clicked.connect(lambda b = True, name= self.name : remove_handler(name))
         main_layout.addWidget(remove_btn)
 
-        #todo : refectorr this class into a FFGLSlider that contain a QSlider and a FFGLPArameter (View/Model)
-        self.ffgl_parameter = FFGLParameter("FF_TYPE_STANDARD", self.is_shader, self.name,
-                                  self.default_value, index)
+
+    @property
+    def index(self):
+        return self.ffgl_parameter.index
+
+    def set_index(self, index):
+        self.ffgl_parameter.set_index(index)
+        self.order_widget.setText(str(index+1))  #adapt to the array index
+
+    def update_order(self, index, new_index):
+        new_index = int(new_index)-1; #adapt to the array index
+        print(f"test {index}, new_index {new_index}")
+        self.ffgl_parameter.set_index(new_index)
 
     @property
     def value(self):
@@ -80,4 +97,4 @@ class FFGLSlider(QWidget):
             print("reset value")
             self.slider.setValue(float(self.default_value))
         else:
-            super().mousePressEvent()
+            super().mousePressEvent(event)
